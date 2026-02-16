@@ -1,7 +1,7 @@
 # Dev Utilities Plugin
 
-Development utility scripts for package management, transcript formatting, and
-diffview.
+Development utility scripts for package management, transcript formatting,
+diffview, and Workday timecard automation.
 
 ## Commands
 
@@ -60,6 +60,32 @@ SAFE (5):
   ...
 ```
 
+### `/stn:timecard`
+
+Automate filling out your Workday timecard with browser automation.
+
+```bash
+/stn:timecard
+```
+
+Interactive workflow that:
+
+1. Asks which week to fill (this week or last week)
+2. Asks for Admin hours breakdown per day
+3. Calculates Development hours (8 - Admin per day)
+4. Shows preview and asks for confirmation
+5. Automates browser to fill timecard in Workday
+
+**Important:** The command saves your timecard but does not submit it for
+approval. You must still submit through Workday's review process.
+
+**Time Types:**
+
+- **Admin Reg** - Administrative time
+- **Development** - Development work (Clinical Decision Support Platform)
+
+Total hours must equal 40 per week (Mon-Fri, 8 hours per day).
+
 ## Scripts
 
 The plugin includes utility scripts:
@@ -72,6 +98,7 @@ The plugin includes utility scripts:
 
 - nvim (for `/transcript` and `/diffview`)
 - pnpm (for `/pnpm-outdated`)
+- Chrome browser with Claude in Chrome extension (for `/stn:timecard`)
 
 ## Usage Tips
 

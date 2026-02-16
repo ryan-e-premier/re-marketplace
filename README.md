@@ -21,15 +21,17 @@ touch your codebase.
 
 ### 🛠️ dev-utilities
 
-Helper scripts for package management, transcript formatting, and diffview.
+Helper scripts for package management, transcript formatting, diffview, and
+Workday timecard automation.
 
-**Commands:** `/diffview`, `/transcript`, `/pnpm-outdated`
+**Commands:** `/diffview`, `/transcript`, `/pnpm-outdated`, `/stn:timecard`
 
 **Features:**
 
 - Semantic version analysis for pnpm packages
 - Transcript formatting and context tools
 - Diff visualization utilities
+- Workday timecard browser automation
 
 [View documentation](./plugins/dev-utilities/README.md)
 
@@ -55,6 +57,7 @@ Plugins are independent and can be used in any combination.
 - Claude Code CLI
 - Vim (for diff-review)
 - pnpm (for pnpm-outdated command)
+- Chrome browser with Claude in Chrome extension (for timecard automation)
 
 ## Development
 
