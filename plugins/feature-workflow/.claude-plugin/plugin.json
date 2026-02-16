@@ -1,0 +1,19 @@
+{
+  "name": "feature-workflow",
+  "version": "1.0.0",
+  "description": "Complete feature development workflow with git worktrees, planning, and task management",
+  "author": {
+    "name": "Ryan Eldridge"
+  },
+  "repository": "https://github.com/eldridger/re-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "git-worktrees",
+    "feature-development",
+    "task-management",
+    "testing",
+    "docker"
+  ],
+  "commands": "./commands"
+}

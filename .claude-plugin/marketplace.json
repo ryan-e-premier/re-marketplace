@@ -1,0 +1,37 @@
+{
+  "name": "re-marketplace",
+  "owner": {
+    "name": "Ryan Eldridge"
+  },
+  "metadata": {
+    "description": "Collection of Claude Code plugins for feature development workflows",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "feature-workflow",
+      "source": "./plugins/feature-workflow",
+      "description": "Complete feature development workflow with git worktrees, planning, and task management",
+      "version": "1.0.0",
+      "category": "workflow",
+      "keywords": ["workflow", "git-worktrees", "feature-development"]
+    },
+    {
+      "name": "diff-review",
+      "source": "./plugins/diff-review",
+      "description": "Interactive vimdiff code review for Claude Code file changes",
+      "version": "0.1.0",
+      "category": "review",
+      "keywords": ["review", "diff", "vimdiff", "safety"]
+    },
+    {
+      "name": "dev-utilities",
+      "source": "./plugins/dev-utilities",
+      "description": "Development utility scripts for package management and transcripts",
+      "version": "1.0.0",
+      "category": "utilities",
+      "keywords": ["utilities", "scripts", "development"]
+    }
+  ]
+}

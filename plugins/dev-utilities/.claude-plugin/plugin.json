@@ -1,0 +1,19 @@
+{
+  "name": "dev-utilities",
+  "version": "1.0.0",
+  "description": "Development utility scripts for package management, transcripts, and environment setup",
+  "author": {
+    "name": "Ryan Eldridge"
+  },
+  "repository": "https://github.com/eldridger/re-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "utilities",
+    "scripts",
+    "development",
+    "pnpm",
+    "transcripts",
+    "diffview"
+  ],
+  "commands": "./commands"
+}
