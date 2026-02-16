@@ -4,19 +4,11 @@
     "name": "Ryan Eldridge"
   },
   "metadata": {
-    "description": "Collection of Claude Code plugins for feature development workflows",
-    "version": "1.0.0",
+    "description": "Collection of Claude Code plugins for code review and development utilities",
+    "version": "1.1.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
-    {
-      "name": "feature-workflow",
-      "source": "./plugins/feature-workflow",
-      "description": "Complete feature development workflow with git worktrees, planning, and task management",
-      "version": "1.0.0",
-      "category": "workflow",
-      "keywords": ["workflow", "git-worktrees", "feature-development"]
-    },
     {
       "name": "diff-review",
       "source": "./plugins/diff-review",

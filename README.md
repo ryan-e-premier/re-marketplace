@@ -1,27 +1,8 @@
 # RE Marketplace
 
-A collection of Claude Code plugins for streamlined feature development
-workflows, code review, and development utilities.
+A collection of Claude Code plugins for code review and development utilities.
 
 ## Plugins
-
-### 🔄 feature-workflow
-
-Complete feature development lifecycle with git worktrees, planning, task
-management, testing, and Docker integration.
-
-**Commands:** 14 commands including `/feature-start`, `/feature-build`,
-`/feature-end`, `/test-all-apps`, `/update-packages`
-
-**Features:**
-
-- Git worktree-based feature isolation
-- Integrated task management
-- Docker environment management
-- Comprehensive testing workflows
-- ClaudeFlow customization templates
-
-[View documentation](./plugins/feature-workflow/README.md)
 
 ### 🔍 diff-review
 
@@ -57,28 +38,22 @@ Helper scripts for package management, transcript formatting, and diffview.
 ### Add the marketplace
 
 ```bash
-/plugin marketplace add eldridger/re-marketplace
+/plugin marketplace add ryan-e-premier/re-marketplace
 ```
 
 ### Install plugins
 
-Install all plugins:
-
 ```bash
-/plugin install feature-workflow@re-marketplace
 /plugin install diff-review@re-marketplace
 /plugin install dev-utilities@re-marketplace
 ```
 
-Or install individually based on your needs. Plugins are independent and can be
-used in any combination.
+Plugins are independent and can be used in any combination.
 
 ## Requirements
 
 - Claude Code CLI
-- Git (for feature-workflow)
 - Vim (for diff-review)
-- tmux (recommended for feature-workflow)
 - pnpm (for pnpm-outdated command)
 
 ## Development
@@ -90,7 +65,6 @@ This is a monorepo marketplace. Each plugin is independent and located in the
 
 ```
 plugins/
-├── feature-workflow/
 ├── diff-review/
 └── dev-utilities/
 ```
@@ -114,4 +88,4 @@ Ryan Eldridge
 
 Issues and pull requests welcome!
 
-https://github.com/eldridger/re-marketplace
+https://github.com/ryan-e-premier/re-marketplace
