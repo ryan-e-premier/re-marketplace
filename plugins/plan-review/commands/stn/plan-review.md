@@ -10,7 +10,8 @@ and applying edits mid-review.
 ```
 
 - With a path: review that file directly
-- Without a path: list plans from `~/.claude/plans/` and prompt for selection
+- Without a path: search both the local `.claude/plans/` directory (if
+  present) and the global `~/.claude/plans/` directory
 
 ## Examples
 
@@ -24,103 +25,173 @@ and applying edits mid-review.
 ### Phase 1: Load the plan file
 
 1. **Resolve the file to review**
-   - If an argument was given (file path), use it directly
+
+   - If an argument was given (file path), use it directly.
+
    - If no argument given:
-     - List all `.md` files in `~/.claude/plans/` sorted by modification
-       time, newest first, using:
-       `ls -t ~/.claude/plans/*.md 2>/dev/null`
-     - Display them as a numbered list, e.g.:
-       ```
-       1. hidden-gliding-garden.md  (modified: 2026-02-18)
-       2. zippy-prancing-patterson.md  (modified: 2026-02-17)
-       ```
-     - Ask: "Which plan would you like to review? (enter a number or
-       filename)"
-     - Accept either the number or the filename as input
-   - Read the full file content with the Read tool
 
-### Phase 2: Analyze and announce structure
+     **a. Gather plans from both directories** — run ONE bash command
+     that outputs a machine-readable list, e.g.:
 
-2. **Scan the file for `##` headings**
-   - Each `##` heading is a primary section
-   - If a section has more than 80 lines or more than 5 `###` sub-headings,
-     split it at those `###` headings (each `###` becomes its own chunk)
-   - Also split at bold numbered-section labels matching the pattern
-     `**[Word] [digit]` (e.g. `**Phase 1 –`, `**Step 2 –`, `**Part 3 –`);
-     each such label becomes its own chunk when the section is long
-   - Build the ordered section list with titles
+     ```bash
+     for f in $(ls -t .claude/plans/*.md 2>/dev/null); do
+       echo "local|$f|$(date -r "$f" "+%Y-%m-%d")"
+     done
+     for f in $(ls -t ~/.claude/plans/*.md 2>/dev/null); do
+       echo "global|$f|$(date -r "$f" "+%Y-%m-%d")"
+     done
+     ```
 
-3. **Announce the structure before starting**
-   - Display: `"This plan has N sections: [Section 1], [Section 2], …"`
-   - Then say: `"Starting review. Say 'next' (or press Enter) to advance,
-     'done' to finish, 'jump N' to skip to a section, or ask a question /
-     request a change at any prompt."`
+     **b. Output the grouped list as your own response text** (NOT
+     inside a bash tool call — write it out as plain Claude output so
+     it is always fully visible in the UI). Assign sequential numbers
+     starting at 1 across both groups. Example format:
 
-### Phase 3: Interactive review loop
+     ```
+     Local plans  (.claude/plans/)
+     ──────────────────────────────────────────
+       1.  test-popup-review.md              2026-02-19
 
-For each section, display it in this format — output the separator lines
-and section content as plain text (NOT inside a code fence) so Claude
-Code's markdown renderer formats headings, bold, lists, and inline code
-properly:
+     Global plans  (~/.claude/plans/)
+     ──────────────────────────────────────────
+       2.  unified-snuggling-elephant.md     2026-02-19
+       3.  hidden-gliding-garden.md          2026-02-16
+       4.  zippy-prancing-patterson.md       2026-02-11
+       5.  hashed-moseying-garden.md         2026-02-04
+       6.  logical-growing-candy.md          2026-01-29
+     ```
+
+     Omit a section header entirely if that directory has no plans.
+
+     **c. Ask:** "Which plan? (enter a number or filename)"
+     Accept the user's reply as plain text. Resolve the number to its
+     corresponding file from the list, or treat the reply as a filename
+     (checking local dir first, then global dir, then as an absolute
+     path).
+
+   - Resolve the chosen filename to its full absolute path before
+     proceeding.
+
+   - Read the full file content with the Read tool.
+
+### Phase 1.5: Offer popup review (tmux sessions only)
+
+2. **Check for an active tmux session:**
+
+   ```bash
+   printenv TMUX 2>/dev/null | wc -c
+   ```
+
+   If output > 1, tmux is active.
+
+3. **If tmux is active**, use `AskUserQuestion` to offer two modes:
+   - **Popup mode** — one section at a time in a tmux popup with keyboard
+     controls (Enter=next, p=prev, q=ask, e=change, d=done)
+   - **Conversational mode** — sections shown here in chat, navigate
+     by typing
+
+   If tmux is **not** active, proceed directly with conversational mode.
+
+### Phase 2: Analyze the plan structure
+
+4. **Count `##` sections** (skipping those inside code fences):
+
+   ```bash
+   awk '
+       /^```/ { in_code = !in_code }
+       !in_code && /^## / { count++ }
+       END { print count+0 }
+   ' "$_plan_file"
+   ```
+
+5. **Collect section titles:**
+
+   ```bash
+   awk '
+       /^```/ { in_code = !in_code }
+       !in_code && /^## / { sub(/^## */, ""); print }
+   ' "$_plan_file"
+   ```
+
+6. **Announce structure:**
+
+   Display: `"This plan has N sections: [Section 1], [Section 2], …"`
+
+   Then describe how to proceed based on the chosen mode.
+
+### Phase 3a: Popup review loop (popup mode)
+
+Track `current = 1`. For each section, run:
+
+```bash
+result=$(bash "${CLAUDE_PLUGIN_ROOT}/scripts/plan-view.sh" \
+    "$_plan_file" "$current")
+```
+
+Handle `result`:
+
+- **`next`** → `current++`; if past the last section, go to Phase 4.
+- **`prev`** → `current--`; clamp to 1.
+- **`done`** → go to Phase 4 immediately.
+- **`ask:<text>`** → answer the question `<text>` using full plan context,
+  then use `AskUserQuestion` with two options — **"Back to review"**
+  (reopens the popup for the same section) and **"Done"** (ends the
+  review and goes to Phase 4) — so the user can read the answer at
+  their own pace before continuing.
+- **`change:<text>`** → propose the edit before/after, ask
+  "Apply this change? (yes/no)" via `AskUserQuestion`. If yes, apply with
+  the Edit tool and note what changed. Re-run `plan-view.sh` for the same
+  section.
+
+### Phase 3b: Conversational review loop (conversational mode)
+
+For each section, output the separator and content as plain text (NOT
+inside a code fence) so headings and formatting render properly:
 
 ---
 
 **Section N of X · [Section Title]**
 
-[section markdown content, output as-is without wrapping in code fences]
+[section markdown content, output as-is]
 
 ---
 
 Commands: [next] [done] [jump N] or ask a question / request a change
 
-**Handle user input at each prompt:**
+**Handle user input:**
 
-- **"next"** or blank input → advance to the next section; after the last
-  section, proceed to Phase 4
-- **"done"** → exit the loop immediately and go to Phase 4
-- **"jump N"** → jump to section N (validate N is in range; if not, say so
-  and re-show the current prompt)
-- **Question** (anything that reads as a question or request for explanation):
-  - Answer it using full awareness of the entire plan content
-  - After answering, re-display the current section header and prompt so the
-    user can continue
-- **Modification request** (anything that reads as a request to change the
-  plan):
-  - Propose the specific edit in a clear before/after format
-  - Ask: "Apply this change? (yes/no)"
-  - If confirmed: apply the edit with the Edit tool, then show a brief
-    summary of what changed (e.g., "Changed: replaced X with Y in section
-    Z")
-  - If declined: acknowledge and continue
-  - Re-display the current section header and prompt
+- **"next"** or blank → advance; after the last section go to Phase 4.
+- **"done"** → go to Phase 4.
+- **"jump N"** → jump to section N (validate range, re-prompt if invalid).
+- **Question** → answer using full plan context; re-display section and
+  prompt.
+- **Modification request** → propose before/after, use `AskUserQuestion`
+  with "Apply" / "Skip" options. Apply with Edit tool if confirmed, show
+  summary, re-display section and prompt.
 
 ### Phase 4: Wrap up
 
-4. **Summarize changes**
-   - If changes were made: display a brief changelog listing each edit
-     - Format: `- [Section title]: [one-line description of what changed]`
-   - If no changes were made: say "No changes were made to the plan."
+7. **Summarize changes**
+   - If changes were made: list each as
+     `- [Section title]: [one-line description]`
+   - If no changes: say "No changes were made to the plan."
 
-5. **Offer to open in nvim**
-   - Say: "Would you like to open the plan in nvim?"
-   - If yes: ask the user if they want to open a new tmux pane first using:
-     `tmux split-window -h -c "#{pane_current_path}"`
-     Then provide the command: `nvim [resolved-path]`
-   - If no: close out gracefully
+8. **Offer to open in nvim** (skip if popup mode was used)
+   - Use `AskUserQuestion` with "Open in nvim" / "Done" options.
+   - If nvim: ask about a new tmux pane
+     (`tmux split-window -h -c "#{pane_current_path}"`) then provide
+     `nvim [resolved-path]`.
 
 ## Important Notes
 
-- **Read the full file before starting** — you need the entire plan in context
-  to answer questions accurately
-- **Never auto-apply edits** — always propose and confirm first
-- **Re-show the section prompt after every interaction** — questions and
-  modifications don't advance the section
-- **Preserve formatting** — when editing, maintain the existing markdown style,
-  heading levels, and line length conventions of the file
-- **Jump validation** — if the user says "jump 0" or a number out of range,
-  explain valid range and re-prompt
+- **Read the full file before starting** — needed for accurate Q&A.
+- **Never auto-apply edits** — always propose and confirm first.
+- **Re-show the section after every interaction** in conversational mode.
+- **Preserve formatting** — maintain existing markdown style and line
+  length.
+- **Jump validation** — explain valid range and re-prompt on out-of-range.
 - **Graceful handling of empty plans directory** — if `~/.claude/plans/`
-  doesn't exist or has no `.md` files, tell the user and exit
+  doesn't exist or has no `.md` files, tell the user and exit.
 
 ---
 
