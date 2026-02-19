@@ -38,17 +38,21 @@ Workday timecard automation.
 ### 📋 plan-review
 
 Interactive section-by-section review of Claude Code plan files. Walk through
-a plan, ask questions, and apply edits mid-review without losing context.
+a plan, ask questions, and apply edits mid-review — with an optional tmux
+popup mode that mirrors the diff-review experience.
 
 **Command:** `/stn:plan-review [path]`
 
 **Features:**
 
-- Lists plans from `~/.claude/plans/` and prompts for selection
-- Splits long sections at `###` headings and bold phase labels
-- Answer questions about any section with full plan context
+- Discovers plans from both local `.claude/plans/` and global
+  `~/.claude/plans/`, displayed in labelled groups
+- **Popup mode** (tmux + neovim) — one section per popup with keybinds:
+  Enter=next, p=prev, q=ask, e=change, d=done
+- **Conversational mode** — sections shown in chat, navigate by typing
+- Ask questions mid-review; answer shown in chat before popup reopens
 - Propose and apply edits inline with before/after confirmation
-- Jump navigation, changelog summary, and nvim handoff
+- Jump navigation and changelog summary at wrap-up
 
 [View documentation](./plugins/plan-review/README.md)
 
@@ -73,7 +77,7 @@ Plugins are independent and can be used in any combination.
 ## Requirements
 
 - Claude Code CLI
-- Vim (for diff-review)
+- Neovim + tmux (for diff-review and plan-review popup mode)
 - pnpm (for pnpm-outdated command)
 - Chrome browser with Claude in Chrome extension (for timecard automation)
 
