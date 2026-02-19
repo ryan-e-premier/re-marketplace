@@ -56,6 +56,26 @@ popup mode that mirrors the diff-review experience.
 
 [View documentation](./plugins/plan-review/README.md)
 
+### 🔧 fix-pr-interactive
+
+Interactively review and address GitHub PR feedback one comment at a time.
+Each comment is shown with full code context before you decide to fix,
+respond, defer, or skip it.
+
+**Command:** `/stn:fix-pr-interactive [PR_NUMBER]`
+
+**Features:**
+
+- Presents each PR comment with surrounding code context and diff hunk
+- Groups duplicate/similar comments so identical feedback is handled once
+- Session persistence — resume mid-session if context is lost
+- Skips already-addressed comments (detects AI reply marker from prior runs)
+- Commit-per-fix workflow with immediate push for reviewer visibility
+- Defers comments to a local markdown file for later review
+- Posts GitHub replies with AI attribution prefix
+
+[View documentation](./plugins/fix-pr-interactive/README.md)
+
 ## Installation
 
 ### Add the marketplace
@@ -70,6 +90,7 @@ popup mode that mirrors the diff-review experience.
 /plugin install diff-review@claude-marketplace
 /plugin install dev-utilities@claude-marketplace
 /plugin install plan-review@claude-marketplace
+/plugin install fix-pr-interactive@claude-marketplace
 ```
 
 Plugins are independent and can be used in any combination.
@@ -80,6 +101,7 @@ Plugins are independent and can be used in any combination.
 - Neovim + tmux (for diff-review and plan-review popup mode)
 - pnpm (for pnpm-outdated command)
 - Chrome browser with Claude in Chrome extension (for timecard automation)
+- `gh` (GitHub CLI) and `jq` (for fix-pr-interactive)
 
 ## Development
 

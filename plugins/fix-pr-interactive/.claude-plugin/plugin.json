@@ -1,0 +1,18 @@
+{
+  "name": "fix-pr-interactive",
+  "version": "1.0.0",
+  "description": "Interactively review and address GitHub PR feedback one comment at a time",
+  "author": {
+    "name": "Ryan Eldridge"
+  },
+  "repository": "https://github.com/ryan-e-premier/claude-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "pr",
+    "review",
+    "github",
+    "interactive",
+    "comments"
+  ],
+  "commands": "./commands"
+}
