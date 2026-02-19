@@ -1,4 +1,4 @@
-# RE Marketplace
+# Claude Marketplace
 
 A collection of Claude Code plugins for code review and development utilities.
 
@@ -57,15 +57,15 @@ a plan, ask questions, and apply edits mid-review without losing context.
 ### Add the marketplace
 
 ```bash
-/plugin marketplace add ryan-e-premier/re-marketplace
+/plugin marketplace add ryan-e-premier/claude-marketplace
 ```
 
 ### Install plugins
 
 ```bash
-/plugin install diff-review@re-marketplace
-/plugin install dev-utilities@re-marketplace
-/plugin install plan-review@re-marketplace
+/plugin install diff-review@claude-marketplace
+/plugin install dev-utilities@claude-marketplace
+/plugin install plan-review@claude-marketplace
 ```
 
 Plugins are independent and can be used in any combination.
@@ -110,4 +110,4 @@ Ryan Eldridge
 
 Issues and pull requests welcome!
 
-https://github.com/ryan-e-premier/re-marketplace
+https://github.com/ryan-e-premier/claude-marketplace
