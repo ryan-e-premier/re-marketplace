@@ -1,0 +1,16 @@
+{
+  "name": "plan-review",
+  "version": "1.0.0",
+  "description": "Interactively review Claude Code plan files section by section",
+  "author": {
+    "name": "Ryan Eldridge"
+  },
+  "repository": "https://github.com/eldridger/re-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "plan",
+    "review",
+    "interactive"
+  ],
+  "commands": "./commands"
+}

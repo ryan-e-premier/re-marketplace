@@ -35,6 +35,23 @@ Workday timecard automation.
 
 [View documentation](./plugins/dev-utilities/README.md)
 
+### 📋 plan-review
+
+Interactive section-by-section review of Claude Code plan files. Walk through
+a plan, ask questions, and apply edits mid-review without losing context.
+
+**Command:** `/stn:plan-review [path]`
+
+**Features:**
+
+- Lists plans from `~/.claude/plans/` and prompts for selection
+- Splits long sections at `###` headings and bold phase labels
+- Answer questions about any section with full plan context
+- Propose and apply edits inline with before/after confirmation
+- Jump navigation, changelog summary, and nvim handoff
+
+[View documentation](./plugins/plan-review/README.md)
+
 ## Installation
 
 ### Add the marketplace
@@ -48,6 +65,7 @@ Workday timecard automation.
 ```bash
 /plugin install diff-review@re-marketplace
 /plugin install dev-utilities@re-marketplace
+/plugin install plan-review@re-marketplace
 ```
 
 Plugins are independent and can be used in any combination.
@@ -69,7 +87,8 @@ This is a monorepo marketplace. Each plugin is independent and located in the
 ```
 plugins/
 ├── diff-review/
-└── dev-utilities/
+├── dev-utilities/
+└── plan-review/
 ```
 
 Each plugin contains:
