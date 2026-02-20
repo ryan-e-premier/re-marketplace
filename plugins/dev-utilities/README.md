@@ -7,11 +7,20 @@ diffview, and Workday timecard automation.
 
 ### `/diffview`
 
-Opens a diffview interface for reviewing code changes.
+Opens a side-by-side diff in a new tmux window using Neovim's DiffviewOpen
+plugin.
 
 ```bash
-/diffview
+/diffview [base]
 ```
+
+- `base` (optional): The ref to compare against. Defaults to `origin/main`.
+
+Examples:
+
+- `/diffview` - Compare current HEAD against `origin/main`
+- `/diffview origin/develop` - Compare against `origin/develop`
+- `/diffview HEAD~5` - Compare last 5 commits
 
 ### `/transcript`
 
@@ -38,26 +47,24 @@ Color-coded summary of outdated pnpm packages with semantic version analysis.
 
 Analyzes your `pnpm outdated` results and categorizes updates:
 
-- **DEPRECATED** - Package marked as deprecated (red)
-- **MAJOR** - Breaking changes expected (yellow)
+- **DEPRECATED** - Package marked as deprecated (yellow)
 - **SAFE** - Minor or patch updates (green)
+- **MAJOR** - Breaking changes expected (red)
 
 Example output:
 
-```
-📦 Package Update Summary
+```text
+═══════════════════════════════════════════════════════
+  AVAILABLE PACKAGE UPDATES
+═══════════════════════════════════════════════════════
 
-DEPRECATED (1):
-  old-package: 1.0.0 → 2.0.0 (deprecated)
+⚠ DEPRECATED (1): old-package
+✓ SAFE (3): lodash, typescript, zod
+⬆ MAJOR (2): react, webpack
 
-MAJOR (2):
-  react: 17.0.2 → 18.2.0
-  webpack: 4.46.0 → 5.88.0
-
-SAFE (5):
-  lodash: 4.17.20 → 4.17.21
-  typescript: 4.9.0 → 4.9.5
-  ...
+═══════════════════════════════════════════════════════
+Summary: 1 deprecated │ 3 safe │ 2 major
+═══════════════════════════════════════════════════════
 ```
 
 ### `/stn:timecard`

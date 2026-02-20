@@ -98,7 +98,7 @@ Plugins are independent and can be used in any combination.
 ## Requirements
 
 - Claude Code CLI
-- Neovim + tmux (for diff-review and plan-review popup mode)
+- Neovim + tmux + jq (for diff-review and plan-review popup mode)
 - pnpm (for pnpm-outdated command)
 - Chrome browser with Claude in Chrome extension (for timecard automation)
 - `gh` (GitHub CLI) and `jq` (for fix-pr-interactive)

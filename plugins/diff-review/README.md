@@ -36,55 +36,63 @@ commands needed - just use Claude Code normally.
 
 ### Review Interface
 
-When a file change is proposed:
+When a file change is proposed, a tmux popup opens with a side-by-side
+vimdiff view. The tabline shows available actions:
 
 ```
-Reviewing changes to: src/components/Button.tsx
-
-[A]ccept changes
-[R]eject changes
-[E]xplain why these changes were made
-[Q]uit and skip this file
-
-Choice:
+CLAUDE REVIEW │ src/components/Button.tsx
+Enter ✓Approve  r ↻Redo  e ?Explain  q ✗Cancel
 ```
+
+Keys are locked for a brief moment after the popup opens to prevent
+accidental approvals.
 
 ### Accept Changes
 
-Press `A` to accept and apply the changes immediately.
+Press `Enter` to accept and apply the changes immediately.
 
 ### Reject Changes
 
-Press `R` to reject. You'll be prompted to provide feedback explaining why the
-changes aren't acceptable. Claude will receive your feedback and can propose
+Press `r` to reject. A second popup prompts for feedback explaining why the
+changes aren't acceptable. Claude receives your feedback and can propose
 alternative changes.
 
 ### Get Explanation
 
-Press `E` to see Claude's explanation of why these changes were made. After
-reading, you can still accept or reject.
+Press `e` to see an AI-generated explanation of why these changes were made.
+After reading, you can still accept or reject.
 
-### Skip File
+### Cancel
 
-Press `Q` to skip reviewing this file without accepting or rejecting.
+Press `q` to cancel the change. The write is blocked and Claude is notified.
 
 ## Requirements
 
-- Vim or Neovim
+- Neovim (`nvim`)
+- tmux
+- jq
 - Claude Code CLI
 
 ## Configuration
 
-The plugin uses a pre-write hook configured in `hooks/hooks.json`:
+The plugin uses a `PreToolUse` hook configured in `hooks/hooks.json`:
 
 ```json
 {
-  "hooks": [
-    {
-      "type": "pre-write",
-      "script": "${CLAUDE_PLUGIN_ROOT}/scripts/diff-review.sh"
-    }
-  ]
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/diff-review.sh",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -96,25 +104,10 @@ The plugin uses a pre-write hook configured in `hooks/hooks.json`:
 
 ## Tips
 
-- Use `:diffget` in vim to selectively accept portions of changes
-- Use `:diffput` to move changes between windows
-- Learn vimdiff commands for fine-grained control
+- Both diff windows are read-only — review only, no manual editing
+- Use `e` to get an AI explanation before deciding
 - Reject changes early and often - Claude learns from feedback
-- Use explanations to understand Claude's reasoning
-
-## Disabling
-
-To temporarily disable reviews:
-
-```bash
-/plugin disable diff-review
-```
-
-To re-enable:
-
-```bash
-/plugin enable diff-review
-```
+- Set `DIFF_REVIEW_DELAY` env var (ms) to adjust the key-lock delay
 
 ## License
 
