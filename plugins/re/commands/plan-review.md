@@ -84,11 +84,13 @@ and applying edits mid-review.
 
    If output > 1, tmux is active.
 
-3. **If tmux is active**, use `AskUserQuestion` to offer two modes:
-   - **Popup mode** — one section at a time in a tmux popup with keyboard
-     controls (Enter=next, p=prev, q=ask, e=change, d=done)
-   - **Conversational mode** — sections shown here in chat, navigate
-     by typing
+3. **If tmux is active**, use `AskUserQuestion` to offer four modes:
+   - **nvim** — open the plan in Neovim inside a tmux popup for direct
+     editing
+   - **vim** — open the plan in Vim inside a tmux popup for direct editing
+   - **nano** — open the plan in nano inside a tmux popup for direct
+     editing
+   - **Conversational** — sections shown here in chat, navigate by typing
 
    If tmux is **not** active, proceed directly with conversational mode.
 
@@ -119,13 +121,14 @@ and applying edits mid-review.
 
    Then describe how to proceed based on the chosen mode.
 
-### Phase 3a: Popup review loop (popup mode)
+### Phase 3a: Editor popup loop (nvim / vim / nano)
 
-Track `current = 1`. For each section, run:
+Track `current = 1` and `editor = {chosen editor from Phase 1.5}`. For
+each section, run:
 
 ```bash
 result=$(bash "${CLAUDE_PLUGIN_ROOT}/scripts/plan-view.sh" \
-    "$_plan_file" "$current")
+    "$_plan_file" "$current" "$editor" "$_section_count")
 ```
 
 Handle `result`:
@@ -138,9 +141,9 @@ Handle `result`:
   (reopens the popup for the same section) and **"Done"** (ends the
   review and goes to Phase 4) — so the user can read the answer at
   their own pace before continuing.
-- **`change:<text>`** → propose the edit before/after, ask
-  "Apply this change? (yes/no)" via `AskUserQuestion`. If yes, apply with
-  the Edit tool and note what changed. Re-run `plan-view.sh` for the same
+- **`change:<text>`** → propose the edit before/after, use
+  `AskUserQuestion` with "Apply" / "Skip" options. If applied, use the
+  Edit tool and note what changed. Re-run `plan-view.sh` for the same
   section.
 
 ### Phase 3b: Conversational review loop (conversational mode)
@@ -156,18 +159,21 @@ inside a code fence) so headings and formatting render properly:
 
 ---
 
-Commands: [next] [done] [jump N] or ask a question / request a change
+Then use `AskUserQuestion` with these four options:
 
-**Handle user input:**
+1. **Next** — advance to the next section
+2. **Done** — finish the review and go to Phase 4
+3. **Jump to section…** — follow up with a second `AskUserQuestion`
+   asking "Jump to which section? (1–N)"; validate range and jump
+4. **Ask / request a change** — follow up with a plain text prompt;
+   if it reads as a question, answer using full plan context; if it
+   reads as a change request, propose the edit before/after and use
+   `AskUserQuestion` with "Apply" / "Skip" options; apply with the Edit
+   tool if confirmed and show a brief summary
 
-- **"next"** or blank → advance; after the last section go to Phase 4.
-- **"done"** → go to Phase 4.
-- **"jump N"** → jump to section N (validate range, re-prompt if invalid).
-- **Question** → answer using full plan context; re-display section and
-  prompt.
-- **Modification request** → propose before/after, use `AskUserQuestion`
-  with "Apply" / "Skip" options. Apply with Edit tool if confirmed, show
-  summary, re-display section and prompt.
+After each interaction (3 or 4), re-display the section content and
+re-show the four options. After the last section, if the user selects
+**Next**, proceed to Phase 4.
 
 ### Phase 4: Wrap up
 
@@ -176,20 +182,22 @@ Commands: [next] [done] [jump N] or ask a question / request a change
      `- [Section title]: [one-line description]`
    - If no changes: say "No changes were made to the plan."
 
-8. **Offer to open in nvim** (skip if popup mode was used)
-   - Use `AskUserQuestion` with "Open in nvim" / "Done" options.
-   - If nvim: ask about a new tmux pane
+8. **Offer to open in an editor** (skip if editor popup mode was used)
+   - Use `AskUserQuestion` with "nvim" / "vim" / "nano" / "Done" options.
+   - If an editor is chosen: ask about a new tmux pane
      (`tmux split-window -h -c "#{pane_current_path}"`) then provide
-     `nvim [resolved-path]`.
+     `{editor} [resolved-path]`.
 
 ## Important Notes
 
 - **Read the full file before starting** — needed for accurate Q&A.
 - **Never auto-apply edits** — always propose and confirm first.
-- **Re-show the section after every interaction** in conversational mode.
+- **Re-display section + re-show options** after every Q&A or change
+  interaction in conversational mode.
 - **Preserve formatting** — maintain existing markdown style and line
   length.
-- **Jump validation** — explain valid range and re-prompt on out-of-range.
+- **Jump validation** — if the entered section number is out of range,
+  say so and re-show the `AskUserQuestion` options.
 - **Graceful handling of empty plans directory** — if `~/.claude/plans/`
   doesn't exist or has no `.md` files, tell the user and exit.
 
