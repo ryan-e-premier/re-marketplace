@@ -61,6 +61,7 @@ AMF_MANAGED=false
 # ── Configuration ───────────────────────────────────────────────
 
 ACTIVATION_DELAY="${DIFF_REVIEW_DELAY:-1500}"
+EDITOR_CMD=""
 
 # ── Dependency checks ───────────────────────────────────────────
 
@@ -74,8 +75,12 @@ check_requirements() {
         echo "  Install: brew install tmux (macOS) or apt install tmux (Linux)" >&2
         return 1
     fi
-    if ! command -v nvim &> /dev/null; then
-        echo "diff-review: neovim is required but not found." >&2
+    if command -v nvim &> /dev/null; then
+        EDITOR_CMD="nvim"
+    elif command -v vim &> /dev/null; then
+        EDITOR_CMD="vim"
+    else
+        echo "diff-review: neovim or vim is required but neither was found." >&2
         echo "  Install: brew install neovim (macOS) or apt install neovim (Linux)" >&2
         return 1
     fi
@@ -221,18 +226,18 @@ function! s:SetupNewFile()
     silent! execute 'file ' . fnameescape(g:claude_file_path)
     setlocal nomodified
     filetype detect
-    lua pcall(vim.treesitter.start)
+    if has('nvim') | lua pcall(vim.treesitter.start) | endif
     setlocal nomodifiable
     setlocal wrap
     setlocal linebreak
     setlocal number
     setlocal cursorline
-    let &l:winbar = '%#ClaudeNewFile#  ★ NEW FILE '
+    if exists('+winbar') | let &l:winbar = '%#ClaudeNewFile#  ★ NEW FILE ' | endif
 endfunction
 VIMSCRIPT
 
         tmux display-popup -E -w 90% -h 90% \
-            nvim -nR "$PROPOSED_FILE" -S "$vim_script" 2>/dev/null || return 1
+            "$EDITOR_CMD" -nR "$PROPOSED_FILE" -S "$vim_script" 2>/dev/null || return 1
     else
         cat >> "$vim_script" << 'VIMSCRIPT'
 " Diff mode — setup windows after diff opens
@@ -244,22 +249,22 @@ function! s:SetupWindows()
     silent! execute 'file ' . fnameescape(g:claude_file_path . '.orig')
     setlocal nomodified
     filetype detect
-    lua pcall(vim.treesitter.start)
-    let &l:winbar = '%#ClaudeOriginal#  ← ORIGINAL '
+    if has('nvim') | lua pcall(vim.treesitter.start) | endif
+    if exists('+winbar') | let &l:winbar = '%#ClaudeOriginal#  ← ORIGINAL ' | endif
     setlocal nomodifiable
     " Right window = proposed
     2wincmd w
     silent! execute 'file ' . fnameescape(g:claude_file_path)
     setlocal nomodified
     filetype detect
-    lua pcall(vim.treesitter.start)
-    let &l:winbar = '%#ClaudeProposed#  → PROPOSED '
+    if has('nvim') | lua pcall(vim.treesitter.start) | endif
+    if exists('+winbar') | let &l:winbar = '%#ClaudeProposed#  → PROPOSED ' | endif
     setlocal nomodifiable
 endfunction
 VIMSCRIPT
 
         tmux display-popup -E -w 90% -h 90% \
-            nvim -nd "$ORIGINAL_FILE" "$PROPOSED_FILE" -S "$vim_script" 2>/dev/null || return 1
+            "$EDITOR_CMD" -d "$ORIGINAL_FILE" "$PROPOSED_FILE" -S "$vim_script" 2>/dev/null || return 1
     fi
 }
 
