@@ -23,7 +23,7 @@ section in a tmux pane for focused review and approval.
 
 ### `/re:diffview`
 
-Open a side-by-side git diff in a tmux window using Neovim's DiffviewOpen.
+Open a side-by-side git diff in a tmux popup using Neovim's DiffviewOpen.
 
 ```bash
 /re:diffview             # diff against origin/main
