@@ -24,6 +24,7 @@ All slash commands in one plugin, installed as `/re:<command>`.
 #### `/re:fix-pr-interactive [PR_NUMBER]`
 
 Interactively review and address GitHub PR feedback one comment at a time.
+Omit `PR_NUMBER` to get a list of open PRs to pick from.
 
 - Full code context and diff hunk for each comment
 - Groups duplicate feedback; session persistence for long reviews
@@ -65,13 +66,9 @@ Hook-based vimdiff review before file changes are applied. No slash command.
 
 ---
 
-### `add-ss` *(WIP)* — Screenshot Helper
+#### `/re:add-ss` *(WIP)*
 
 Capture Chrome screenshots and save them ready to drop into the PR.
-
-**Command:** `/add-ss:stn:add-ss [tab description]`
-
-[View documentation](./plugins/add-ss/README.md)
 
 ## Requirements
 
