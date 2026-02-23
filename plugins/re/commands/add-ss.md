@@ -9,8 +9,8 @@ in Chrome so you can drag them into the Screenshots section.
 
 ## Usage
 
-- `/stn:add-ss` — Auto-detects the PR and asks which tab(s) to capture
-- `/stn:add-ss login page` — Captures the tab whose title/URL best matches
+- `/re:add-ss` — Auto-detects the PR and asks which tab(s) to capture
+- `/re:add-ss login page` — Captures the tab whose title/URL best matches
   the description
 
 ---
@@ -32,7 +32,7 @@ gh pr view --json number,url,title,state,isDraft 2>&1
 
 No open or draft pull request found for the current branch.
 
-Create a PR first, then run /stn:add-ss to add screenshots.
+Create a PR first, then run /re:add-ss to add screenshots.
 
 ═══════════════════════════════════════════════════════════════════════
 ```
@@ -63,7 +63,7 @@ gh pr view --json body --jq '.body'
 
 The PR description doesn't contain a "## Screenshots" heading.
 Add the heading where you want screenshots to appear, then run
-/stn:add-ss again.
+/re:add-ss again.
 ```
 
 Then exit.
@@ -80,7 +80,7 @@ Call `tabs_context_mcp` (with `createIfEmpty: true` if needed).
 ⚠️  Could not connect to Chrome.
 
 Make sure Chrome is open and the Claude in Chrome extension is active,
-then run /stn:add-ss again.
+then run /re:add-ss again.
 ```
 
 Then exit.
@@ -89,7 +89,7 @@ Then exit.
 
 ## Step 4: Select Tab(s) to Capture
 
-**If an argument was provided** (e.g., `/stn:add-ss login page`):
+**If an argument was provided** (e.g., `/re:add-ss login page`):
 
 Find the first tab whose title or URL contains the argument text
 (case-insensitive). If no match, fall through to interactive selection.

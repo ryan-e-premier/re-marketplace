@@ -1,4 +1,4 @@
-# stn
+# re
 
 A collection of development utilities for Claude Code.
 
@@ -39,10 +39,14 @@ Requires `tmux` and `nvim`.
 
 Automate filling out your Workday timecard using browser automation.
 
+### `/re:add-ss` *(WIP)*
+
+Capture Chrome screenshots and save them ready to drop into the PR.
+
 ## Installation
 
 Install via the re-marketplace:
 
 ```bash
-/plugin install stn@re-marketplace
+/plugin install re@re-marketplace
 ```

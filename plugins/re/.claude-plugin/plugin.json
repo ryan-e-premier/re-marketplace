@@ -1,7 +1,7 @@
 {
   "name": "re",
-  "version": "1.0.0",
-  "description": "Development utilities: PR review, diffview, timecard, transcript, and more",
+  "version": "1.1.0",
+  "description": "Development utilities: PR review, diffview, timecard, transcript, screenshots, and more",
   "author": {
     "name": "Ryan Eldridge"
   },

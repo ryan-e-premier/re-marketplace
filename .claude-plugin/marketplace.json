@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Collection of Claude Code plugins for code review and development utilities",
-    "version": "3.0.0",
+    "version": "3.1.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -26,14 +26,6 @@
       "keywords": [
         "pr", "review", "diff", "timecard", "transcript", "pnpm", "utilities"
       ]
-    },
-    {
-      "name": "add-ss",
-      "source": "./plugins/add-ss",
-      "description": "Capture Chrome screenshots and add them to the PR Screenshots section",
-      "version": "1.0.0",
-      "category": "utilities",
-      "keywords": ["pr", "screenshots", "github", "chrome", "browser"]
     }
   ]
 }
