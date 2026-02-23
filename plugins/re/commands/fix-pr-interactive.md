@@ -10,8 +10,8 @@ decide whether to fix it, respond, or skip.
 
 ## Usage
 
-- `/stn:fix-pr-interactive` - Lists open PRs and asks which to fix
-- `/stn:fix-pr-interactive 366` - Addresses feedback for PR #366
+- `/re:fix-pr-interactive` - Lists open PRs and asks which to fix
+- `/re:fix-pr-interactive 366` - Addresses feedback for PR #366
 
 ---
 
@@ -143,7 +143,7 @@ This file is **NOT gitignored** - you may want to commit it or add to
 **If PR number provided in args:**
 
 - Use the provided number directly
-  (e.g., `/stn:fix-pr-interactive 366` → PR #366)
+  (e.g., `/re:fix-pr-interactive 366` → PR #366)
 
 **If no PR number provided:**
 
@@ -1022,8 +1022,8 @@ user aborts mid-session, the session file remains so they can resume later.
 No open pull requests found for your user.
 
 To use this command:
-  • Create a PR first, then run `/stn:fix-pr-interactive`
-  • Or specify a PR number: `/stn:fix-pr-interactive 123`
+  • Create a PR first, then run `/re:fix-pr-interactive`
+  • Or specify a PR number: `/re:fix-pr-interactive 123`
 
 ═══════════════════════════════════════════════════════════════════════
 ```

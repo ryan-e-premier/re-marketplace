@@ -6,7 +6,7 @@ and applying edits mid-review.
 ## Usage
 
 ```
-/stn:plan-review [path]
+/re:plan-review [path]
 ```
 
 - With a path: review that file directly
@@ -15,8 +15,8 @@ and applying edits mid-review.
 
 ## Examples
 
-- `/stn:plan-review` - List recent plans and pick one
-- `/stn:plan-review ~/.claude/plans/my-feature.md` - Review a specific plan
+- `/re:plan-review` - List recent plans and pick one
+- `/re:plan-review ~/.claude/plans/my-feature.md` - Review a specific plan
 
 ---
 

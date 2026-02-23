@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Collection of Claude Code plugins for code review and development utilities",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -18,52 +18,14 @@
       "keywords": ["review", "diff", "vimdiff", "safety"]
     },
     {
-      "name": "diffview",
-      "source": "./plugins/diffview",
-      "description": "Open a side-by-side diff in a tmux window using Neovim's DiffviewOpen",
+      "name": "re",
+      "source": "./plugins/re",
+      "description": "Development utilities: PR review, diffview, timecard, transcript, and more",
       "version": "1.0.0",
       "category": "utilities",
-      "keywords": ["diff", "neovim", "tmux", "git"]
-    },
-    {
-      "name": "pnpm-outdated",
-      "source": "./plugins/pnpm-outdated",
-      "description": "Color-coded summary of outdated pnpm packages with semver analysis",
-      "version": "1.0.0",
-      "category": "utilities",
-      "keywords": ["pnpm", "packages", "outdated", "semver"]
-    },
-    {
-      "name": "transcript",
-      "source": "./plugins/transcript",
-      "description": "Open the current Claude Code conversation transcript in nvim",
-      "version": "1.0.0",
-      "category": "utilities",
-      "keywords": ["transcript", "nvim", "tmux", "context"]
-    },
-    {
-      "name": "timecard",
-      "source": "./plugins/timecard",
-      "description": "Automate filling out your Workday timecard with browser automation",
-      "version": "1.0.0",
-      "category": "utilities",
-      "keywords": ["timecard", "workday", "browser", "automation"]
-    },
-    {
-      "name": "plan-review",
-      "source": "./plugins/plan-review",
-      "description": "Interactive section-by-section review of Claude Code plan files",
-      "version": "1.0.0",
-      "category": "review",
-      "keywords": ["plan", "review", "interactive", "tmux"]
-    },
-    {
-      "name": "fix-pr-interactive",
-      "source": "./plugins/fix-pr-interactive",
-      "description": "Interactively review and address GitHub PR feedback one comment at a time",
-      "version": "1.0.0",
-      "category": "review",
-      "keywords": ["pr", "review", "github", "interactive", "comments"]
+      "keywords": [
+        "pr", "review", "diff", "timecard", "transcript", "pnpm", "utilities"
+      ]
     },
     {
       "name": "add-ss",

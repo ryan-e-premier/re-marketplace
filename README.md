@@ -1,7 +1,7 @@
 # Claude Marketplace
 
 A collection of Claude Code plugins for code review and development utilities.
-All commands are available as `/stn:<command>` once the marketplace is added.
+All commands are available as `/re:<command>` once the marketplace is added.
 
 ## Installation
 
@@ -9,90 +9,67 @@ All commands are available as `/stn:<command>` once the marketplace is added.
 /plugin marketplace add ryan-e-premier/claude-marketplace
 ```
 
-That's it — all plugins load automatically. No individual installs needed.
+Then install the plugin:
+
+```bash
+/plugin install re@re-marketplace
+```
 
 ## Plugins
 
-### 🔍 diff-review
+### `re` — Development Utilities
 
-Interactive vimdiff code review before file changes are applied.
+All slash commands in one plugin, installed as `/re:<command>`.
 
-**Command:** hook-based (no slash command)
-
-- Pre-write hook intercepts file changes
-- Side-by-side vimdiff comparison with accept/reject
-
-[View documentation](./plugins/diff-review/README.md)
-
-### 📊 diffview
-
-Open a side-by-side diff in a new tmux window using Neovim's DiffviewOpen.
-
-**Command:** `/stn:diffview [base]`
-
-[View documentation](./plugins/diffview/README.md)
-
-### 📦 pnpm-outdated
-
-Color-coded summary of outdated pnpm packages with semantic version analysis.
-
-**Command:** `/stn:pnpm-outdated`
-
-- Categorizes updates as DEPRECATED, SAFE (minor/patch), or MAJOR
-
-[View documentation](./plugins/pnpm-outdated/README.md)
-
-### 📜 transcript
-
-Open the current Claude Code conversation transcript in nvim via a tmux popup.
-
-**Command:** `/stn:transcript`
-
-[View documentation](./plugins/transcript/README.md)
-
-### 🕐 timecard
-
-Automate filling out your Workday timecard with browser automation.
-
-**Command:** `/stn:timecard`
-
-- Gathers hours upfront, shows preview, then automates Chrome to fill Workday
-
-[View documentation](./plugins/timecard/README.md)
-
-### 📋 plan-review
-
-Interactive section-by-section review of Claude Code plan files.
-
-**Command:** `/stn:plan-review [path]`
-
-- Popup mode (tmux + neovim) with keybinds: Enter=next, p=prev, q=ask,
-  e=change, d=done
-- Conversational mode for non-tmux environments
-- Propose and apply edits inline with confirmation
-
-[View documentation](./plugins/plan-review/README.md)
-
-### 🔧 fix-pr-interactive
+#### `/re:fix-pr-interactive [PR_NUMBER]`
 
 Interactively review and address GitHub PR feedback one comment at a time.
-
-**Command:** `/stn:fix-pr-interactive [PR_NUMBER]`
 
 - Full code context and diff hunk for each comment
 - Groups duplicate feedback; session persistence for long reviews
 - Commit-per-fix workflow with immediate push
 
-[View documentation](./plugins/fix-pr-interactive/README.md)
+#### `/re:plan-review [path]`
 
-### 📸 add-ss *(WIP)*
+Interactive section-by-section review of Claude Code plan files.
+
+- Popup mode (tmux + neovim) with keybinds: Enter=next, p=prev, q=ask,
+  e=change, d=done
+- Conversational mode for non-tmux environments
+
+#### `/re:diffview [base]`
+
+Open a side-by-side diff in a new tmux window using Neovim's DiffviewOpen.
+
+#### `/re:pnpm-outdated`
+
+Color-coded summary of outdated pnpm packages with semantic version analysis.
+
+#### `/re:transcript`
+
+Open the current Claude Code conversation transcript in nvim via a tmux popup.
+
+#### `/re:timecard`
+
+Automate filling out your Workday timecard with browser automation.
+
+[View documentation](./plugins/re/README.md)
+
+---
+
+### `diff-review` — File Change Review Hook
+
+Hook-based vimdiff review before file changes are applied. No slash command.
+
+[View documentation](./plugins/diff-review/README.md)
+
+---
+
+### `add-ss` *(WIP)* — Screenshot Helper
 
 Capture Chrome screenshots and save them ready to drop into the PR.
 
-**Command:** `/stn:add-ss [tab description]`
-
-- Captures tabs via html2canvas, saves to `/tmp/add-ss-pr-{number}/`
-- Opens the PR in Chrome and Finder for drag-and-drop upload
+**Command:** `/add-ss:stn:add-ss [tab description]`
 
 [View documentation](./plugins/add-ss/README.md)
 
@@ -108,19 +85,10 @@ Capture Chrome screenshots and save them ready to drop into the PR.
 
 ```text
 plugins/
-├── diff-review/
-├── diffview/
-├── pnpm-outdated/
-├── transcript/
-├── timecard/
-├── plan-review/
-├── fix-pr-interactive/
-└── add-ss/
+├── re/            ← all /re:X commands
+├── diff-review/   ← hooks only
+└── add-ss/        ← WIP screenshots helper
 ```
-
-Each plugin contains a `.claude-plugin/plugin.json` manifest, a
-`commands/stn/` directory with command definitions, and optionally a
-`scripts/` directory and `README.md`.
 
 ## License
 

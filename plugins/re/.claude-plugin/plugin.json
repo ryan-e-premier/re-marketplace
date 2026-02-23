@@ -1,7 +1,7 @@
 {
-  "name": "fix-pr-interactive",
+  "name": "re",
   "version": "1.0.0",
-  "description": "Interactively review and address GitHub PR feedback one comment at a time",
+  "description": "Development utilities: PR review, diffview, timecard, transcript, and more",
   "author": {
     "name": "Ryan Eldridge"
   },
@@ -10,9 +10,10 @@
   "keywords": [
     "pr",
     "review",
-    "github",
-    "interactive",
-    "comments"
+    "diff",
+    "timecard",
+    "transcript",
+    "utilities"
   ],
   "commands": "./commands"
 }
