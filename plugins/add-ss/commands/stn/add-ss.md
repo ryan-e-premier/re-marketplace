@@ -216,7 +216,7 @@ Then exit.
 
 ---
 
-## Step 6: Commit and Push Screenshots
+## Step 6: Commit, Push, and Capture SHA
 
 Stage and commit all captured screenshots in a single commit:
 
@@ -226,10 +226,18 @@ git commit -m "chore: add screenshots for PR #<number> [skip ci]"
 git push
 ```
 
-The raw GitHub URL for each file is:
+Immediately capture the commit SHA:
+
+```bash
+git rev-parse HEAD
+```
+
+Build image URLs using the **commit SHA** (not the branch name). This makes
+the URLs immutable — they will keep working even after the files are deleted
+from the branch in Step 9:
 
 ```text
-https://raw.githubusercontent.com/<owner>/<repo>/<branch>/.github/screenshots/pr-<number>/screenshot-N.jpg
+https://raw.githubusercontent.com/<owner>/<repo>/<sha>/.github/screenshots/pr-<number>/screenshot-N.jpg
 ```
 
 Construct one URL per screenshot. These are the image URLs used in the PR
@@ -275,8 +283,9 @@ options:
 multiSelect: false
 ```
 
-**If "Cancel":** inform the user and exit. The screenshot files are already
-committed to the branch; they can delete that commit manually if desired.
+**If "Cancel":** inform the user and exit. The screenshot commit is already
+pushed; proceed to Step 9 anyway to clean up the files from the branch, but
+skip the `gh api` call.
 
 **If "Update":**
 
@@ -294,7 +303,29 @@ rm -f /tmp/add-ss-body.json
 
 ---
 
-## Step 9: Confirm
+## Step 9: Remove Screenshot Files from Branch
+
+Now that the PR body references images by commit SHA (not branch), the files
+themselves are no longer needed on the branch. Remove them:
+
+```bash
+git rm -r .github/screenshots/pr-<number>/
+git commit -m "chore: remove temp screenshots for PR #<number> [skip ci]"
+git push
+```
+
+If `.github/screenshots/` is now empty, remove the directory too:
+
+```bash
+rmdir .github/screenshots 2>/dev/null || true
+```
+
+The SHA-based image URLs in the PR description continue to work — the commit
+from Step 6 remains in the branch's git history and is permanently reachable.
+
+---
+
+## Step 10: Confirm
 
 ```text
 ✅ Screenshots added to PR #<number>
@@ -303,9 +334,7 @@ rm -f /tmp/add-ss-body.json
    <pr_url>
 
    Added <count> screenshot(s) to the Screenshots section.
-
-   Screenshots committed to:
-   .github/screenshots/pr-<number>/
+   Screenshot files removed from branch.
 ```
 
 ---
@@ -318,10 +347,11 @@ If the CDN script is blocked or html2canvas throws, warn the user and try
 the `computer` screenshot fallback (see Step 5a). If both fail, skip that
 tab and continue.
 
-### Git push fails
+### Git push fails (Step 6)
 
-Display the error and ask the user to push manually. Do not update the PR
-body if the screenshots are not yet pushed (the raw URLs would 404).
+Display the error and ask the user to push manually. Do not proceed to update
+the PR body until the push succeeds — the SHA-based raw URLs will 404 until
+the commit is on the remote.
 
 ### `gh api` PATCH fails
 

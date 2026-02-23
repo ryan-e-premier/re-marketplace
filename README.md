@@ -89,8 +89,8 @@ the open or draft PR for the current branch.
 - Verifies a Screenshots heading exists in the PR body before proceeding
 - Lists open Chrome tabs and lets you pick one or more to capture
 - Captures pages via `javascript_tool` + html2canvas — no imageId expiry
-- Commits screenshots to `.github/screenshots/pr-{number}/` and references
-  them via `raw.githubusercontent.com`
+- Commits screenshots by SHA-pinned `raw.githubusercontent.com` URLs, then
+  removes the files from the branch automatically
 - Updates the PR description via `gh api PATCH` — no web UI editing
 - Always confirms before making the API call
 

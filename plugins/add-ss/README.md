@@ -67,22 +67,35 @@ For each selected tab, injects
 the visible viewport as a JPEG data URL. The data URL is returned directly
 to Claude — no imageId, no expiry risk.
 
-### Step 5: Save and Commit
+### Step 5: Save, Commit, and Capture SHA
 
 Decodes each data URL to a `.jpg` file on disk, copies it to
-`.github/screenshots/pr-{number}/`, and commits + pushes in a single
-`chore: add screenshots` commit.
+`.github/screenshots/pr-{number}/`, commits, and pushes. The commit SHA is
+captured and used to build **SHA-pinned** image URLs:
+
+```text
+https://raw.githubusercontent.com/{owner}/{repo}/{sha}/.github/screenshots/...
+```
+
+Using the SHA (not the branch name) means the URLs stay valid even after the
+files are deleted.
 
 ### Step 6: Update PR via API
 
-Builds the new PR body with `raw.githubusercontent.com` image URLs inserted
-at the top of the Screenshots section, then runs:
+Builds the new PR body with SHA-pinned image URLs inserted at the top of the
+Screenshots section, then runs:
 
 ```bash
 gh api repos/{owner}/{repo}/pulls/{number} -X PATCH --input /tmp/add-ss-body.json
 ```
 
 Asks for your confirmation before making the API call.
+
+### Step 7: Clean Up
+
+Removes `.github/screenshots/pr-{number}/` from the branch with a second
+commit and push. The SHA-based URLs in the PR description continue to work
+permanently — the original commit remains reachable in the branch's history.
 
 ## Example Output
 
@@ -93,14 +106,5 @@ Asks for your confirmation before making the API call.
    https://github.com/org/repo/pull/42
 
    Added 2 screenshot(s) to the Screenshots section.
-
-   Screenshots committed to:
-   .github/screenshots/pr-42/
+   Screenshot files removed from branch.
 ```
-
-## Note on Committed Screenshots
-
-Screenshot files are committed to `.github/screenshots/pr-{number}/` on
-your branch. You can squash or drop this commit before merging if you prefer
-a clean history, or add `.github/screenshots/` to `.gitignore` and host the
-images elsewhere.
