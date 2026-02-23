@@ -68,7 +68,9 @@ Press `q` to cancel the change. The write is blocked and Claude is notified.
 
 ## Requirements
 
-- `nvim` or `vim` (neovim preferred, vim used as fallback)
+- `nvim` or `vim` — neovim preferred; vim used as fallback with full
+  compatibility (softer diff colors, statusline pane labels instead of
+  winbar)
 - tmux
 - jq
 - Claude Code CLI
@@ -110,8 +112,8 @@ The plugin uses a `PreToolUse` hook configured in `hooks/hooks.json`:
 - Create `~/.config/claude-diff-review/config` to set persistent options:
 
   ```ini
-  editor=vim    # use vim instead of nvim
-  delay=1000    # key-lock delay in ms
+  editor=vim    # use vim instead of nvim (default: auto-detect)
+  delay=1000    # key-lock delay in ms (default: 1500)
   ```
 
 ## License
