@@ -76,6 +76,25 @@ respond, defer, or skip it.
 
 [View documentation](./plugins/fix-pr-interactive/README.md)
 
+### 📸 add-ss
+
+Capture Chrome screenshots and add them to the `## Screenshots` section of
+the open or draft PR for the current branch.
+
+**Command:** `/stn:add-ss [tab description]`
+
+**Features:**
+
+- Auto-detects the open or draft PR for the current branch via `gh pr view`
+- Verifies a Screenshots heading exists in the PR body before proceeding
+- Lists open Chrome tabs and lets you pick one or more to capture
+- Uploads screenshots via the PR comment box to get GitHub CDN URLs
+- Updates the PR description via `gh api PATCH` — no web UI editing
+- Auto-positions image markdown at the top of the Screenshots section
+- Always confirms before making the API call
+
+[View documentation](./plugins/add-ss/README.md)
+
 ## Installation
 
 ### Add the marketplace
@@ -91,6 +110,7 @@ respond, defer, or skip it.
 /plugin install dev-utilities@claude-marketplace
 /plugin install plan-review@claude-marketplace
 /plugin install fix-pr-interactive@claude-marketplace
+/plugin install add-ss@claude-marketplace
 ```
 
 Plugins are independent and can be used in any combination.
@@ -100,8 +120,9 @@ Plugins are independent and can be used in any combination.
 - Claude Code CLI
 - Neovim + tmux + jq (for diff-review and plan-review popup mode)
 - pnpm (for pnpm-outdated command)
-- Chrome browser with Claude in Chrome extension (for timecard automation)
-- `gh` (GitHub CLI) and `jq` (for fix-pr-interactive)
+- Chrome browser with Claude in Chrome extension (for timecard automation
+  and add-ss)
+- `gh` (GitHub CLI) and `jq` (for fix-pr-interactive and add-ss)
 
 ## Development
 
@@ -114,7 +135,9 @@ This is a monorepo marketplace. Each plugin is independent and located in the
 plugins/
 ├── diff-review/
 ├── dev-utilities/
-└── plan-review/
+├── plan-review/
+├── fix-pr-interactive/
+└── add-ss/
 ```
 
 Each plugin contains:

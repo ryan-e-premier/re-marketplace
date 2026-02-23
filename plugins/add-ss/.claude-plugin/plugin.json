@@ -1,0 +1,18 @@
+{
+  "name": "add-ss",
+  "version": "1.0.0",
+  "description": "Capture Chrome screenshots and add them to the Screenshots section of the current branch's PR",
+  "author": {
+    "name": "Ryan Eldridge"
+  },
+  "repository": "https://github.com/ryan-e-premier/claude-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "pr",
+    "screenshots",
+    "github",
+    "chrome",
+    "browser"
+  ],
+  "commands": "./commands"
+}
