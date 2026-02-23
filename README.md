@@ -88,9 +88,10 @@ the open or draft PR for the current branch.
 - Auto-detects the open or draft PR for the current branch via `gh pr view`
 - Verifies a Screenshots heading exists in the PR body before proceeding
 - Lists open Chrome tabs and lets you pick one or more to capture
-- Uploads screenshots via the PR comment box to get GitHub CDN URLs
+- Captures pages via `javascript_tool` + html2canvas — no imageId expiry
+- Commits screenshots to `.github/screenshots/pr-{number}/` and references
+  them via `raw.githubusercontent.com`
 - Updates the PR description via `gh api PATCH` — no web UI editing
-- Auto-positions image markdown at the top of the Screenshots section
 - Always confirms before making the API call
 
 [View documentation](./plugins/add-ss/README.md)

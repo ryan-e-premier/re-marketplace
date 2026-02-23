@@ -4,7 +4,7 @@ description: Capture Chrome screenshots and add them to the PR Screenshots secti
 
 # Add Screenshots to PR
 
-Captures screenshots from Chrome tabs and uploads them to the `## Screenshots`
+Captures screenshots from Chrome tabs and adds them to the `## Screenshots`
 section of the open or draft PR for the current branch.
 
 ## Usage
@@ -20,19 +20,18 @@ section of the open or draft PR for the current branch.
 Run:
 
 ```bash
-gh pr view --json number,url,title,state,isDraft,body,headRepository
+gh pr view --json number,url,title,state,isDraft,body,headRefName
 ```
 
-This returns all needed fields in one call. Parse:
+Parse:
 
 - `number` — PR number
 - `url` — full GitHub PR URL
 - `title` — PR title
-- `isDraft` — whether it is a draft PR
-- `body` — current PR description (used in Step 2)
-- `headRepository.owner.login` and `headRepository.name` — for API calls
+- `body` — current PR description
+- `headRefName` — current branch name (used for raw GitHub URLs)
 
-Also capture `owner` and `repo` separately for use in `gh api` calls:
+Also capture owner and repo:
 
 ```bash
 gh repo view --json owner,name --jq '"\(.owner.login)/\(.name)"'
@@ -60,8 +59,7 @@ Then exit.
 
 ## Step 2: Check for Screenshots Section
 
-Scan the PR `body` from Step 1 for a Screenshots heading. Accept any of these
-(case-insensitive):
+Scan the PR `body` for a Screenshots heading (case-insensitive):
 
 - `## Screenshots`
 - `### Screenshots`
@@ -70,30 +68,25 @@ Scan the PR `body` from Step 1 for a Screenshots heading. Accept any of these
 
 **If no Screenshots section exists:**
 
-Display:
-
 ```text
 ⚠️  No Screenshots section found in PR #<number>.
 
 The PR description doesn't contain a "## Screenshots" heading.
-Add the heading to your PR description where you want screenshots
-to appear, then run /stn:add-ss again.
+Add the heading where you want screenshots to appear, then run
+/stn:add-ss again.
 ```
 
-Then exit. Do NOT add the heading automatically — the user controls PR body
-structure.
+Then exit. Do NOT add the heading automatically.
 
-**If a Screenshots section exists:** note the exact heading text and line
-position. Continue.
+**If found:** note the exact heading text and line position. Continue.
 
 ---
 
 ## Step 3: Get Chrome Context
 
-Call `tabs_context_mcp` to get all available tabs. If the MCP tab group does
-not exist yet, pass `createIfEmpty: true`.
+Call `tabs_context_mcp` (with `createIfEmpty: true` if needed).
 
-**If Chrome is not reachable / no tabs are available:**
+**If Chrome is not reachable:**
 
 ```text
 ⚠️  Could not connect to Chrome.
@@ -110,122 +103,110 @@ Then exit.
 
 **If an argument was provided** (e.g., `/stn:add-ss login page`):
 
-Search the available tabs for a title or URL that contains the argument text
-(case-insensitive). Use the first match. If no match is found, fall through to
-the interactive selection below.
+Find the first tab whose title or URL contains the argument (case-insensitive).
+If no match, fall through to interactive selection.
 
-**Otherwise**, use `AskUserQuestion` to let the user pick which tab(s) to
-capture:
+**Otherwise**, use `AskUserQuestion`:
 
 ```text
 question: "Which tab(s) should I screenshot?"
 header: "Tabs"
 multiSelect: true
-options: one entry per tab — label = tab title (truncated to 50 chars),
-         description = URL (truncated to 80 chars)
+options: one per tab — label = title (≤50 chars), description = URL (≤80 chars)
 ```
-
-Allow selecting multiple tabs. Screenshots are added to the PR in selection
-order.
 
 ---
 
-## Step 5: Navigate to PR Comment Box
+## Step 5: Capture Each Tab via javascript_tool
 
-Before taking any screenshots, set up the upload target so screenshots can be
-uploaded immediately after capture — image IDs expire quickly and must be used
-before moving to the next tab.
+Screenshot image IDs expire between tool calls, so this command avoids them
+entirely. Instead, each tab is captured as a data URL using `javascript_tool`,
+saved to disk via Bash, and committed to the branch for hosting.
 
-### 5a. Navigate to PR page
+**For each selected tab, in order:**
 
-Using one of the available Chrome tabs (prefer the MCP tab; create one if
-needed), navigate to the PR URL from Step 1. Wait for the page to load.
+### 5a. Inject html2canvas and capture
 
-### 5b. Locate the comment box textarea
-
-Find the main "Leave a comment" textarea at the bottom of the PR thread. Use
-`find` with query `"leave a comment textarea"` or try via `javascript_tool`:
+Run `javascript_tool` on the source tab to capture the visible page as a
+compressed JPEG data URL. Prefer JPEG to keep the data size manageable:
 
 ```javascript
-document.querySelector(
-  '#new_comment_field, ' +
-  'textarea[name="comment[body]"], ' +
-  '.js-new-comment-form textarea'
-)
+(async () => {
+  // Inject html2canvas if not already present
+  if (!window.html2canvas) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Capture at device pixel ratio, max 1440px wide
+  const scale = Math.min(window.devicePixelRatio || 1, 2);
+  const canvas = await html2canvas(document.documentElement, {
+    useCORS: true,
+    allowTaint: true,
+    scale: scale,
+    width: Math.min(document.documentElement.scrollWidth, 1440),
+    height: window.innerHeight,
+    windowWidth: Math.min(document.documentElement.scrollWidth, 1440),
+    windowHeight: window.innerHeight,
+    y: window.scrollY
+  });
+
+  // Resize to max 1440px wide to keep data URL manageable
+  const maxW = 1440;
+  const ratio = Math.min(1, maxW / canvas.width);
+  const out = document.createElement('canvas');
+  out.width = Math.round(canvas.width * ratio);
+  out.height = Math.round(canvas.height * ratio);
+  out.getContext('2d').drawImage(canvas, 0, 0, out.width, out.height);
+
+  return out.toDataURL('image/jpeg', 0.85);
+})()
 ```
 
-### 5c. Locate the file attachment input
+The return value is a `data:image/jpeg;base64,...` string.
 
-GitHub's comment form has a hidden `<input type="file">` for attachments. Use
-`find` with query `"attach files file input"` or locate it via
-`javascript_tool`:
+**If html2canvas injection or capture fails** (e.g., CSP blocks the CDN),
+fall back to `computer` with `action: "screenshot"` and use that imageId
+immediately in the next tool call with no intermediate steps — but treat
+the expiry risk as acceptable for the fallback path only.
 
-```javascript
-document.querySelector(
-  '.js-new-comment-form input[type="file"], ' +
-  'form[action*="comments"] input[type="file"]'
-)
+### 5b. Save to a temp file
+
+Extract the base64 portion and save to disk:
+
+```bash
+python3 - <<'PYEOF'
+import sys, base64, os
+data_url = """DATA_URL_HERE"""
+b64 = data_url.split(',', 1)[1]
+img_bytes = base64.b64decode(b64)
+path = '/tmp/add-ss-N.jpg'  # use actual N
+with open(path, 'wb') as f:
+    f.write(img_bytes)
+print(f'Saved {len(img_bytes)} bytes to {path}')
+PYEOF
 ```
 
-Store the ref for the file input — it will be reused for every upload.
+Replace `DATA_URL_HERE` with the actual data URL from 5a and `N` with the
+screenshot index (1, 2, …).
 
----
+### 5c. Copy into the repo
 
-## Step 6: Capture and Upload Each Screenshot Immediately
+Place the file in a `.github/screenshots/` directory scoped to the PR:
 
-**Process each selected tab one at a time.** For each tab, take the screenshot
-and upload it before moving on. Do not batch screenshots — image IDs expire
-quickly and must be used right away.
+```bash
+mkdir -p .github/screenshots/pr-<number>
+cp /tmp/add-ss-N.jpg .github/screenshots/pr-<number>/screenshot-N.jpg
+```
 
-For tab N:
+### 5d. Repeat for remaining tabs
 
-1. **Switch to the target tab** using `computer` with `action: "screenshot"`
-   and the tab's ID to capture it. Note the returned image ID.
-
-2. **Immediately upload** via `upload_image`:
-   - `imageId`: the image ID just captured
-   - `ref`: the file input ref from Step 5c
-   - `filename`: `screenshot-<N>.png`
-
-3. **Wait ~3 seconds** for GitHub to process the upload.
-
-4. **Extract the CDN URL** by reading the textarea value via `javascript_tool`:
-
-   ```javascript
-   document.querySelector(
-     '#new_comment_field, textarea[name="comment[body]"]'
-   ).value
-   ```
-
-   GitHub appends something like:
-
-   ```text
-   ![screenshot-1](https://github.com/owner/repo/assets/12345/uuid.png)
-   ```
-
-   Extract the full `![...](...)`  markdown string. If it doesn't appear
-   after ~5 seconds (re-check once), warn and skip that screenshot.
-
-5. **Store** the extracted image markdown.
-
-6. **Clear the textarea** so the next upload's markdown is easy to isolate:
-
-   ```javascript
-   const ta = document.querySelector(
-     '#new_comment_field, textarea[name="comment[body]"]'
-   );
-   ta.value = '';
-   ta.dispatchEvent(new Event('input', { bubbles: true }));
-   ```
-
-7. Repeat for the next tab.
-
-**Do NOT click the submit/comment button at any point.**
-
-If a screenshot capture fails for a tab, log a warning and continue with the
-next tab.
-
-If **no** CDN URLs were collected at all:
+If **no** tabs were captured successfully at all:
 
 ```text
 ⚠️  No screenshots were captured. Nothing was added to the PR.
@@ -235,49 +216,51 @@ Then exit.
 
 ---
 
+## Step 6: Commit and Push Screenshots
+
+Stage and commit all captured screenshots in a single commit:
+
+```bash
+git add .github/screenshots/pr-<number>/
+git commit -m "chore: add screenshots for PR #<number> [skip ci]"
+git push
+```
+
+The raw GitHub URL for each file is:
+
+```text
+https://raw.githubusercontent.com/<owner>/<repo>/<branch>/.github/screenshots/pr-<number>/screenshot-N.jpg
+```
+
+Construct one URL per screenshot. These are the image URLs used in the PR
+body update.
+
+---
+
 ## Step 7: Build Updated PR Body
 
-All image markdown strings are now collected. Construct the new PR body
-in memory using the `body` from Step 1:
+Construct the new PR body in memory using the `body` from Step 1:
 
-1. Locate the Screenshots heading line (found in Step 2).
+1. Locate the Screenshots heading (found in Step 2).
 
-2. Find the insertion point: the line immediately after the heading and any
-   blank line that directly follows it, but before any existing content in
-   the section or the next `##`/`###` heading.
+2. Find the insertion point: immediately after the heading and any blank line
+   that follows it, before any existing section content or the next
+   `##`/`###` heading.
 
-3. Insert all collected image markdown strings at that point, each on its
-   own line separated by a blank line.
+3. Insert all image markdown strings at that point, each on its own line
+   separated by a blank line:
 
-4. Leave all other content in the body unchanged.
+   ```text
+   ![screenshot-1](https://raw.githubusercontent.com/.../screenshot-1.jpg)
 
-**Example — before:**
+   ![screenshot-2](https://raw.githubusercontent.com/.../screenshot-2.jpg)
+   ```
 
-```text
-## Screenshots
-
-_No screenshots yet_
-
-## Notes
-```
-
-**After (one screenshot uploaded):**
-
-```text
-## Screenshots
-
-![screenshot-1](https://github.com/owner/repo/assets/...)
-
-_No screenshots yet_
-
-## Notes
-```
+4. Leave all other content unchanged.
 
 ---
 
 ## Step 8: Confirm and Update PR via API
-
-Ask the user for confirmation before writing:
 
 Use `AskUserQuestion`:
 
@@ -286,15 +269,16 @@ question: "Add <N> screenshot(s) to PR #<number>?"
 header: "Update PR"
 options:
   - label: "Update"
-    description: "Write the new body via gh api"
+    description: "Patch the PR description via gh api"
   - label: "Cancel"
-    description: "Abort — no changes will be made"
+    description: "Abort — screenshot commit already pushed but PR not modified"
 multiSelect: false
 ```
 
-**If "Cancel":** inform the user that nothing was changed and exit.
+**If "Cancel":** inform the user and exit. The screenshot files are already
+committed to the branch; they can delete that commit manually if desired.
 
-**If "Update":** write the new body to a temp file and PATCH via `gh api`:
+**If "Update":**
 
 ```bash
 printf '%s' "<new_body>" \
@@ -304,22 +288,13 @@ printf '%s' "<new_body>" \
 gh api repos/<owner>/<repo>/pulls/<number> \
   -X PATCH \
   --input /tmp/add-ss-body.json
-```
 
-Using `jq -Rs` to build the JSON payload ensures the body is correctly
-escaped regardless of newlines or special characters.
-
-Clean up the temp file after the API call:
-
-```bash
 rm -f /tmp/add-ss-body.json
 ```
 
 ---
 
 ## Step 9: Confirm
-
-Display:
 
 ```text
 ✅ Screenshots added to PR #<number>
@@ -328,51 +303,40 @@ Display:
    <pr_url>
 
    Added <count> screenshot(s) to the Screenshots section.
+
+   Screenshots committed to:
+   .github/screenshots/pr-<number>/
 ```
 
 ---
 
 ## Error Handling
 
-### Upload produces no image markdown
+### html2canvas fails (CSP or load error)
 
-If the textarea does not contain an image URL after ~5 seconds:
+If the CDN script is blocked or html2canvas throws, warn the user and try
+the `computer` screenshot fallback (see Step 5a). If both fail, skip that
+tab and continue.
 
-```text
-⚠️  Screenshot <N> upload may have failed — no GitHub URL was detected.
-    You can attach it manually to the PR.
-```
+### Git push fails
 
-Continue with any remaining screenshots.
-
-### Chrome not connected
-
-If `tabs_context_mcp` fails or returns no usable tabs, instruct the user to
-open Chrome with the Claude in Chrome extension active and retry.
+Display the error and ask the user to push manually. Do not update the PR
+body if the screenshots are not yet pushed (the raw URLs would 404).
 
 ### `gh api` PATCH fails
 
-Display the error output from `gh api` verbatim so the user can diagnose it
-(auth issue, network, etc.). Do not silently swallow the error.
-
-### No CDN URLs were collected
-
-If all uploads failed and no image markdown was captured:
-
-```text
-⚠️  No screenshots were successfully uploaded. The PR was not modified.
-```
-
-Then exit without calling `gh api`.
+Display the `gh api` error verbatim so the user can diagnose it.
 
 ---
 
 ## Notes
 
+- Screenshots are committed to `.github/screenshots/pr-<number>/` on the
+  current branch and hosted via `raw.githubusercontent.com`. No external
+  service or GitHub CDN upload is required.
+- This approach avoids screenshot `imageId` expiry entirely — capture and
+  disk save happen via `javascript_tool` and Bash, with no time-sensitive
+  IDs involved.
+- The `[skip ci]` flag on the screenshot commit prevents CI from running
+  on a cosmetic commit. Remove it if your CI should run on all commits.
 - Works with both open and draft PRs.
-- The PR comment box is used only as a temporary upload target to obtain
-  GitHub CDN URLs; no comment is ever submitted.
-- The PR description is updated entirely via `gh api` — no GitHub web UI
-  editing required.
-- When multiple tabs are selected the screenshots appear in the order they
-  were selected.
