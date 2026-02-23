@@ -68,7 +68,7 @@ Press `q` to cancel the change. The write is blocked and Claude is notified.
 
 ## Requirements
 
-- Neovim (`nvim`) - optional (for custom configuration with vimdiff)
+- `nvim` or `vim` (neovim preferred, vim used as fallback)
 - tmux
 - jq
 - Claude Code CLI
@@ -108,6 +108,7 @@ The plugin uses a `PreToolUse` hook configured in `hooks/hooks.json`:
 - Use `e` to get an AI explanation before deciding
 - Reject changes early and often - Claude learns from feedback
 - Set `DIFF_REVIEW_DELAY` env var (ms) to adjust the key-lock delay
+- Set `DIFF_REVIEW_EDITOR=vim` to force vim even when neovim is installed
 
 ## License
 

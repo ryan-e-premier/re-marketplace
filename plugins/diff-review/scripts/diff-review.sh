@@ -75,7 +75,14 @@ check_requirements() {
         echo "  Install: brew install tmux (macOS) or apt install tmux (Linux)" >&2
         return 1
     fi
-    if command -v nvim &> /dev/null; then
+    if [[ -n "${DIFF_REVIEW_EDITOR:-}" ]]; then
+        if command -v "$DIFF_REVIEW_EDITOR" &> /dev/null; then
+            EDITOR_CMD="$DIFF_REVIEW_EDITOR"
+        else
+            echo "diff-review: DIFF_REVIEW_EDITOR='$DIFF_REVIEW_EDITOR' not found." >&2
+            return 1
+        fi
+    elif command -v nvim &> /dev/null; then
         EDITOR_CMD="nvim"
     elif command -v vim &> /dev/null; then
         EDITOR_CMD="vim"
