@@ -222,6 +222,16 @@ highlight ClaudeProposed guifg=#a6e3a1 guibg=#313244 gui=bold ctermbg=237 ctermf
 highlight ClaudeExplain guifg=#89b4fa guibg=#7c3aed gui=bold ctermbg=93 ctermfg=117 cterm=bold
 highlight ClaudeNewFile guifg=#89b4fa guibg=#313244 gui=bold ctermbg=237 ctermfg=117 cterm=bold
 
+" Softer diff colors (override vim's harsh defaults)
+highlight DiffAdd    guifg=#a6e3a1 guibg=#1a2e1a gui=NONE ctermbg=22  ctermfg=151 cterm=NONE
+highlight DiffChange guifg=#cdd6f4 guibg=#1a1e2e gui=NONE ctermbg=17  ctermfg=189 cterm=NONE
+highlight DiffDelete guifg=#45475a guibg=#1a1a1e gui=NONE ctermbg=235 ctermfg=59  cterm=NONE
+highlight DiffText   guifg=#89b4fa guibg=#1e3050 gui=bold ctermbg=18  ctermfg=117 cterm=bold
+
+" Global cleanup
+set noruler
+set laststatus=2
+
 " Tabline: file path + actions
 set showtabline=2
 function! ClaudeTabline()
@@ -247,12 +257,18 @@ function! s:SetupNewFile()
     setlocal nomodified
     filetype detect
     if has('nvim') | lua pcall(vim.treesitter.start) | endif
+    setlocal foldcolumn=0
+    setlocal signcolumn=no
     setlocal nomodifiable
     setlocal wrap
     setlocal linebreak
     setlocal number
     setlocal cursorline
-    if exists('+winbar') | let &l:winbar = '%#ClaudeNewFile#  ★ NEW FILE ' | endif
+    if exists('+winbar')
+        let &l:winbar = '%#ClaudeNewFile#  ★ NEW FILE '
+    else
+        let &l:statusline = '%#ClaudeNewFile#  ★ NEW FILE  %='
+    endif
 endfunction
 VIMSCRIPT
 
@@ -270,16 +286,28 @@ function! s:SetupWindows()
     setlocal nomodified
     filetype detect
     if has('nvim') | lua pcall(vim.treesitter.start) | endif
-    if exists('+winbar') | let &l:winbar = '%#ClaudeOriginal#  ← ORIGINAL ' | endif
+    setlocal foldcolumn=0
+    setlocal signcolumn=no
     setlocal nomodifiable
+    if exists('+winbar')
+        let &l:winbar = '%#ClaudeOriginal#  ← ORIGINAL '
+    else
+        let &l:statusline = '%#ClaudeOriginal#  ← ORIGINAL  %='
+    endif
     " Right window = proposed
     2wincmd w
     silent! execute 'file ' . fnameescape(g:claude_file_path)
     setlocal nomodified
     filetype detect
     if has('nvim') | lua pcall(vim.treesitter.start) | endif
-    if exists('+winbar') | let &l:winbar = '%#ClaudeProposed#  → PROPOSED ' | endif
+    setlocal foldcolumn=0
+    setlocal signcolumn=no
     setlocal nomodifiable
+    if exists('+winbar')
+        let &l:winbar = '%#ClaudeProposed#  → PROPOSED '
+    else
+        let &l:statusline = '%#ClaudeProposed#  → PROPOSED  %='
+    endif
 endfunction
 VIMSCRIPT
 

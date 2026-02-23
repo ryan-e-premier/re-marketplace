@@ -1,6 +1,6 @@
 {
   "name": "diff-review",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Review Claude Code file changes in a vimdiff popup before they're applied",
   "author": {
     "name": "eldridger"
