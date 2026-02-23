@@ -1,7 +1,7 @@
 # add-ss
 
-Capture Chrome screenshots and add them to the `## Screenshots` section of
-the open or draft PR for the current branch.
+Capture Chrome screenshots and save them to disk, ready to drag into the
+`## Screenshots` section of the open or draft PR for the current branch.
 
 ## Command
 
@@ -23,19 +23,14 @@ the open or draft PR for the current branch.
 - **Multi-tab capture** — lists all open Chrome tabs and lets you pick one
   or more; captures them in order
 - **No imageId expiry** — captures pages via `javascript_tool` + html2canvas
-  as data URLs, bypassing the time-sensitive screenshot imageId mechanism
-  entirely
-- **Branch-hosted images** — screenshots are committed to
-  `.github/screenshots/pr-{number}/` on the current branch and referenced
-  via `raw.githubusercontent.com`; no external service needed
-- **API-only PR update** — the PR description is updated with `gh api PATCH`,
-  not by navigating the GitHub web editor
-- **Confirm before update** — always asks before patching the PR
+  as data URLs saved to disk; falls back to `screencapture` if html2canvas
+  is blocked
+- **Opens PR and Finder** — navigates Chrome to the PR and opens Finder to
+  the screenshot folder so you can drag files straight in
 
 ## Requirements
 
 - `gh` (GitHub CLI) authenticated with your account
-- `jq` for JSON payload construction
 - `python3` for base64 decoding (pre-installed on macOS)
 - Chrome open with the
   [Claude in Chrome](https://github.com/anthropics/claude-in-chrome) extension
@@ -43,68 +38,26 @@ the open or draft PR for the current branch.
 
 ## How It Works
 
-### Step 1: Detect PR
+1. Detects the PR for the current branch via `gh pr view`
+2. Checks that a `## Screenshots` heading exists in the PR body
+3. Lists Chrome tabs for you to select (or auto-matches from an argument)
+4. Captures each tab using html2canvas → data URL → saved as
+   `/tmp/add-ss-pr-{number}/screenshot-N.jpg`
+5. Navigates Chrome to the PR page and scrolls to the Screenshots section
+6. Opens Finder to `/tmp/add-ss-pr-{number}/`
+7. Tells you to drag the files into the PR description editor
 
-Uses `gh pr view` to find any open or draft PR for the current branch. Exits
-early with a helpful message if none is found.
-
-### Step 2: Verify Screenshots Section
-
-Reads the current PR body and checks for a `## Screenshots` or
-`### Screenshots` heading. If absent, tells you to add it first — the command
-never silently modifies your PR structure.
-
-### Step 3: Select Tabs
-
-Lists all open Chrome tabs via the Claude in Chrome extension. You can
-multi-select tabs. If you pass a description argument (e.g.,
-`/stn:add-ss dashboard`), it matches the best tab automatically.
-
-### Step 4: Capture via javascript_tool
-
-For each selected tab, injects
-[html2canvas](https://html2canvas.hertzen.com/) into the page and captures
-the visible viewport as a JPEG data URL. The data URL is returned directly
-to Claude — no imageId, no expiry risk.
-
-### Step 5: Save, Commit, and Capture SHA
-
-Decodes each data URL to a `.jpg` file on disk, copies it to
-`.github/screenshots/pr-{number}/`, commits, and pushes. The commit SHA is
-captured and used to build **SHA-pinned** image URLs:
-
-```text
-https://raw.githubusercontent.com/{owner}/{repo}/{sha}/.github/screenshots/...
-```
-
-Using the SHA (not the branch name) means the URLs stay valid even after the
-files are deleted.
-
-### Step 6: Update PR via API
-
-Builds the new PR body with SHA-pinned image URLs inserted at the top of the
-Screenshots section, then runs:
-
-```bash
-gh api repos/{owner}/{repo}/pulls/{number} -X PATCH --input /tmp/add-ss-body.json
-```
-
-Asks for your confirmation before making the API call.
-
-### Step 7: Clean Up
-
-Removes `.github/screenshots/pr-{number}/` from the branch with a second
-commit and push. The SHA-based URLs in the PR description continue to work
-permanently — the original commit remains reachable in the branch's history.
+GitHub handles the upload and CDN hosting when you drop the files in.
 
 ## Example Output
 
 ```text
-✅ Screenshots added to PR #42
+📸 Screenshots saved — drag them into the PR
 
-   feat: add dark mode toggle
-   https://github.com/org/repo/pull/42
+   Files:
+     /tmp/add-ss-pr-42/screenshot-1.jpg
+     /tmp/add-ss-pr-42/screenshot-2.jpg
 
-   Added 2 screenshot(s) to the Screenshots section.
-   Screenshot files removed from branch.
+   The PR is open in Chrome. Drag the file(s) above into the
+   "## Screenshots" section of the PR description and click Save.
 ```
