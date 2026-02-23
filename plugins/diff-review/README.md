@@ -68,7 +68,7 @@ Press `q` to cancel the change. The write is blocked and Claude is notified.
 
 ## Requirements
 
-- Neovim (`nvim`)
+- Neovim (`nvim`) - optional (for custom configuration with vimdiff)
 - tmux
 - jq
 - Claude Code CLI
