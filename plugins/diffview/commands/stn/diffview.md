@@ -5,16 +5,16 @@ Open a diff view in a new tmux window using Neovim's DiffviewOpen plugin.
 ## Usage
 
 ```
-/diffview [base]
+/stn:diffview [base]
 ```
 
 - `base` (optional): The base ref to compare against. Defaults to `origin/main`.
 
 ## Examples
 
-- `/diffview` - Compare current HEAD against origin/main
-- `/diffview origin/develop` - Compare against origin/develop
-- `/diffview HEAD~5` - Compare last 5 commits
+- `/stn:diffview` - Compare current HEAD against origin/main
+- `/stn:diffview origin/develop` - Compare against origin/develop
+- `/stn:diffview HEAD~5` - Compare last 5 commits
 
 ---
 

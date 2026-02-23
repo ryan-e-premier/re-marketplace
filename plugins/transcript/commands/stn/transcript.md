@@ -1,5 +1,5 @@
 Run this command to open the conversation transcript in nvim:
 
 ```bash
-~/.claude/scripts/open-context.sh
+${CLAUDE_PLUGIN_ROOT}/scripts/open-context.sh
 ```

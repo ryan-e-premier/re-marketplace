@@ -1,0 +1,12 @@
+{
+  "name": "pnpm-outdated",
+  "version": "1.0.0",
+  "description": "Color-coded summary of outdated pnpm packages with semver analysis",
+  "author": {
+    "name": "Ryan Eldridge"
+  },
+  "repository": "https://github.com/ryan-e-premier/claude-marketplace",
+  "license": "MIT",
+  "keywords": ["pnpm", "packages", "outdated", "semver"],
+  "commands": "./commands"
+}
