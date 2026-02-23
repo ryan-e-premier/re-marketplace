@@ -1,11 +1,11 @@
 {
-  "name": "claude-marketplace",
+  "name": "re-marketplace",
   "owner": {
     "name": "Ryan Eldridge"
   },
   "metadata": {
     "description": "Collection of Claude Code plugins for code review and development utilities",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -24,6 +24,30 @@
       "version": "1.0.0",
       "category": "utilities",
       "keywords": ["utilities", "scripts", "development"]
+    },
+    {
+      "name": "plan-review",
+      "source": "./plugins/plan-review",
+      "description": "Interactive section-by-section review of Claude Code plan files",
+      "version": "1.0.0",
+      "category": "review",
+      "keywords": ["plan", "review", "interactive", "tmux"]
+    },
+    {
+      "name": "fix-pr-interactive",
+      "source": "./plugins/fix-pr-interactive",
+      "description": "Interactively review and address GitHub PR feedback one comment at a time",
+      "version": "1.0.0",
+      "category": "review",
+      "keywords": ["pr", "review", "github", "interactive", "comments"]
+    },
+    {
+      "name": "add-ss",
+      "source": "./plugins/add-ss",
+      "description": "Capture Chrome screenshots and add them to the PR Screenshots section",
+      "version": "1.0.0",
+      "category": "utilities",
+      "keywords": ["pr", "screenshots", "github", "chrome", "browser"]
     }
   ]
 }
