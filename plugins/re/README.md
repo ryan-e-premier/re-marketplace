@@ -6,10 +6,15 @@ A collection of development utilities for Claude Code.
 
 All commands are available as `/re:<command>` after installing.
 
-### `/re:fix-pr-interactive`
+### `/re:fix-pr-interactive [PR_NUMBER]`
 
 Interactively review and address GitHub PR feedback one comment at a time.
 Maintains session state so you can resume if context is lost mid-session.
+
+```bash
+/re:fix-pr-interactive        # lists open PRs to pick from
+/re:fix-pr-interactive 366    # jump straight to PR #366
+```
 
 ### `/re:plan-review`
 
