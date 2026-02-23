@@ -1,5 +1,8 @@
 # add-ss
 
+> ⚠️ **Work in progress.** This plugin is functional but still being refined.
+> Expect rough edges.
+
 Capture Chrome screenshots and save them to disk, ready to drag into the
 `## Screenshots` section of the open or draft PR for the current branch.
 
