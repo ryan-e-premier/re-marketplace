@@ -60,8 +60,23 @@ AMF_MANAGED=false
 
 # ── Configuration ───────────────────────────────────────────────
 
+CONFIG_FILE="${HOME}/.config/claude-diff-review/config"
 ACTIVATION_DELAY="${DIFF_REVIEW_DELAY:-1500}"
 EDITOR_CMD=""
+
+# Load config file if present (key=value, one per line)
+if [[ -f "$CONFIG_FILE" ]]; then
+    while IFS='=' read -r key value; do
+        [[ "$key" =~ ^[[:space:]]*# ]] && continue
+        [[ -z "$key" ]] && continue
+        key="${key//[[:space:]]/}"
+        value="${value//[[:space:]]/}"
+        case "$key" in
+            editor) EDITOR_CMD="$value" ;;
+            delay)  ACTIVATION_DELAY="$value" ;;
+        esac
+    done < "$CONFIG_FILE"
+fi
 
 # ── Dependency checks ───────────────────────────────────────────
 
@@ -75,11 +90,9 @@ check_requirements() {
         echo "  Install: brew install tmux (macOS) or apt install tmux (Linux)" >&2
         return 1
     fi
-    if [[ -n "${DIFF_REVIEW_EDITOR:-}" ]]; then
-        if command -v "$DIFF_REVIEW_EDITOR" &> /dev/null; then
-            EDITOR_CMD="$DIFF_REVIEW_EDITOR"
-        else
-            echo "diff-review: DIFF_REVIEW_EDITOR='$DIFF_REVIEW_EDITOR' not found." >&2
+    if [[ -n "$EDITOR_CMD" ]]; then
+        if ! command -v "$EDITOR_CMD" &> /dev/null; then
+            echo "diff-review: configured editor '$EDITOR_CMD' not found." >&2
             return 1
         fi
     elif command -v nvim &> /dev/null; then

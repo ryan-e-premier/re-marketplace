@@ -107,8 +107,12 @@ The plugin uses a `PreToolUse` hook configured in `hooks/hooks.json`:
 - Both diff windows are read-only — review only, no manual editing
 - Use `e` to get an AI explanation before deciding
 - Reject changes early and often - Claude learns from feedback
-- Set `DIFF_REVIEW_DELAY` env var (ms) to adjust the key-lock delay
-- Set `DIFF_REVIEW_EDITOR=vim` to force vim even when neovim is installed
+- Create `~/.config/claude-diff-review/config` to set persistent options:
+
+  ```ini
+  editor=vim    # use vim instead of nvim
+  delay=1000    # key-lock delay in ms
+  ```
 
 ## License
 
