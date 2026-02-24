@@ -77,7 +77,61 @@ Press `q` to cancel the change. The write is blocked and Claude is notified.
 
 ## Configuration
 
-The plugin uses a `PreToolUse` hook configured in `hooks/hooks.json`:
+### Config file
+
+Persistent options are set in `~/.config/claude-diff-review/config`.
+Create it if it doesn't exist:
+
+```bash
+mkdir -p ~/.config/claude-diff-review
+touch ~/.config/claude-diff-review/config
+```
+
+The file uses simple `key=value` syntax, one option per line. Lines
+starting with `#` are treated as comments.
+
+```ini
+# ~/.config/claude-diff-review/config
+
+editor=vim     # which editor to use for the diff popup
+delay=1000     # key-lock delay in milliseconds
+```
+
+### Options
+
+#### `editor`
+
+Controls which editor opens the diff popup. If not set, the plugin
+auto-detects: nvim is used if installed, vim is used as a fallback.
+
+| Value  | Behavior                                                    |
+|--------|-------------------------------------------------------------|
+| `nvim` | Use Neovim — winbar pane labels, treesitter highlighting    |
+| `vim`  | Use Vim — statusline pane labels, standard syntax highlight |
+
+Example:
+
+```ini
+editor=vim
+```
+
+#### `delay`
+
+The number of milliseconds after the popup opens before keybindings
+activate. During this window, only the `Enter` key is guarded — it
+shows a "Keys locked" message rather than immediately approving. This
+prevents accidental approvals when the popup steals focus mid-typing.
+
+Default: `1500` (1.5 seconds). Set lower if the delay feels too long,
+or higher if you find yourself accidentally pressing keys.
+
+```ini
+delay=800
+```
+
+### Hook configuration
+
+The plugin registers itself via `hooks/hooks.json`:
 
 ```json
 {
@@ -100,21 +154,16 @@ The plugin uses a `PreToolUse` hook configured in `hooks/hooks.json`:
 
 ## Scripts
 
-- `diff-review.sh` - Main review script that opens vimdiff
-- `explain.sh` - Handles explanation requests
-- `feedback-prompt.sh` - Prompts for rejection feedback
+- `diff-review.sh` — Main review script; opens the diff popup and
+  handles approve/reject/explain/cancel signals
+- `explain.sh` — Generates and displays an AI explanation of the diff
+- `feedback-prompt.sh` — Prompts for rejection feedback in a small popup
 
 ## Tips
 
 - Both diff windows are read-only — review only, no manual editing
 - Use `e` to get an AI explanation before deciding
-- Reject changes early and often - Claude learns from feedback
-- Create `~/.config/claude-diff-review/config` to set persistent options:
-
-  ```ini
-  editor=vim    # use vim instead of nvim (default: auto-detect)
-  delay=1000    # key-lock delay in ms (default: 1500)
-  ```
+- Reject changes early and often — Claude learns from your feedback
 
 ## License
 
