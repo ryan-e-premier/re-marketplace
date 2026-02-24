@@ -84,28 +84,19 @@ and applying edits mid-review.
 
    If output > 1, tmux is active.
 
-3. **If tmux is active**, use `AskUserQuestion` to offer three modes:
-   - **Popup editor** — one section at a time in a tmux popup; will ask
-     which editor next
-   - **VS Code** — open the full plan in VS Code; Claude waits for you
-     to return
-   - **Conversational** — sections shown here in chat, navigate by
-     selection menu
+3. **If tmux is active**, use `AskUserQuestion` to offer four modes:
+   - **nvim** — open the plan in Neovim inside a tmux popup for direct
+     editing
+   - **vim** — open the plan in Vim inside a tmux popup for direct editing
+   - **nano** — open the plan in nano inside a tmux popup for direct
+     editing
+   - **Conversational** — sections shown here in chat, navigate by typing
 
-   If tmux is **not** active, use `AskUserQuestion` to offer:
-   - **VS Code** — open the full plan in VS Code; Claude waits for you
-     to return
-   - **Conversational** — sections shown here in chat
-
-4. **If Popup editor was chosen**, use a second `AskUserQuestion` to ask
-   which terminal editor:
-   - **nvim** — Neovim
-   - **vim** — Vim
-   - **nano** — nano
+   If tmux is **not** active, proceed directly with conversational mode.
 
 ### Phase 2: Analyze the plan structure
 
-5. **Count `##` sections** (skipping those inside code fences):
+4. **Count `##` sections** (skipping those inside code fences):
 
    ```bash
    awk '
@@ -115,7 +106,7 @@ and applying edits mid-review.
    ' "$_plan_file"
    ```
 
-6. **Collect section titles:**
+5. **Collect section titles:**
 
    ```bash
    awk '
@@ -124,7 +115,7 @@ and applying edits mid-review.
    ' "$_plan_file"
    ```
 
-7. **Announce structure:**
+6. **Announce structure:**
 
    Display: `"This plan has N sections: [Section 1], [Section 2], …"`
 
@@ -184,38 +175,18 @@ After each interaction (3 or 4), re-display the section content and
 re-show the four options. After the last section, if the user selects
 **Next**, proceed to Phase 4.
 
-### Phase 3c: VS Code mode
-
-Open the plan file in VS Code:
-
-```bash
-code "$_plan_file"
-```
-
-Then use `AskUserQuestion` to notify the user and pause. Header:
-`"[filename] is open in VS Code — come back when you're done."` Options:
-
-- **Done reviewing** — re-read the file with the Read tool to detect any
-  changes, then go to Phase 4
-- **Review sections now** — re-read the file, then run the full Phase 3b
-  conversational loop before going to Phase 4
-- **Re-open in VS Code** — run `code "$_plan_file"` again and re-show
-  these same three options
-
 ### Phase 4: Wrap up
 
-8. **Summarize changes**
+7. **Summarize changes**
    - If changes were made: list each as
      `- [Section title]: [one-line description]`
    - If no changes: say "No changes were made to the plan."
 
-9. **Offer to open in an editor** (skip if popup or VS Code mode was used)
-   - Use `AskUserQuestion` with "nvim" / "vim" / "VS Code" / "Done"
-     options.
-   - If nvim or vim: ask about a new tmux pane
+8. **Offer to open in an editor** (skip if editor popup mode was used)
+   - Use `AskUserQuestion` with "nvim" / "vim" / "nano" / "Done" options.
+   - If an editor is chosen: ask about a new tmux pane
      (`tmux split-window -h -c "#{pane_current_path}"`) then provide
      `{editor} [resolved-path]`.
-   - If VS Code: run `code "$_plan_file"`.
 
 ## Important Notes
 
