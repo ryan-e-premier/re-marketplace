@@ -33,16 +33,18 @@ number or filename.
 
 #### Review modes
 
-When running inside tmux, you are prompted to choose a review mode:
+When running inside tmux, you are prompted to choose a mode. Popup editor
+prompts for which terminal editor to use.
 
-| Mode             | Description                                               |
-|------------------|-----------------------------------------------------------|
-| **nvim**         | Each section shown in Neovim inside a tmux popup          |
-| **vim**          | Each section shown in Vim inside a tmux popup             |
-| **nano**         | Each section shown in nano (view) + small action menu     |
+| Mode               | Description                                             |
+|--------------------|---------------------------------------------------------|
+| **Popup — nvim**   | Each section shown in Neovim inside a tmux popup        |
+| **Popup — vim**    | Each section shown in Vim inside a tmux popup           |
+| **Popup — nano**   | Each section shown in nano (view) + small action menu   |
+| **VS Code**        | Full plan opened in VS Code; Claude waits for return    |
 | **Conversational** | Sections rendered in chat; navigate via selection menu  |
 
-Outside tmux, conversational mode is used automatically.
+Outside tmux, VS Code or Conversational mode is offered.
 
 #### Editor popup controls (nvim / vim)
 
@@ -66,12 +68,22 @@ After each section a selection menu offers:
 3. **Jump to section…** — enter a section number to jump
 4. **Ask / request a change** — type a question or describe an edit
 
+#### VS Code mode
+
+When VS Code is selected, the plan file opens via `code <file>` and Claude
+pauses with three options to choose from when you return:
+
+- **Done reviewing** — detect changes and go to wrap-up
+- **Review sections now** — run a conversational section review first
+- **Re-open in VS Code** — open the file again
+
 #### Wrap-up
 
 After the last section (or when you press `d`/Done), the command:
 
 - Lists every edit made during the session
-- Offers to open the plan in nvim, vim, or nano for any final edits
+- Offers to open the plan in nvim, vim, or VS Code for any final edits
+  (skipped if you already used an editor)
 
 ### `/re:diffview`
 
