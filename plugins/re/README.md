@@ -16,10 +16,62 @@ Maintains session state so you can resume if context is lost mid-session.
 /re:fix-pr-interactive 366    # jump straight to PR #366
 ```
 
-### `/re:plan-review`
+### `/re:plan-review [path]`
 
-Interactive section-by-section review of Claude Code plan files. Opens each
-section in a tmux pane for focused review and approval.
+Interactive section-by-section review of Claude Code plan files. Walk through
+each `##` section, ask questions, and apply edits — all without leaving the
+conversation.
+
+```bash
+/re:plan-review                              # pick from recent plans
+/re:plan-review ~/.claude/plans/my-plan.md  # open a specific file
+```
+
+Plans are searched in both `.claude/plans/` (local) and `~/.claude/plans/`
+(global). Without an argument, a numbered list is shown and you pick by
+number or filename.
+
+#### Review modes
+
+When running inside tmux, you are prompted to choose a review mode:
+
+| Mode             | Description                                               |
+|------------------|-----------------------------------------------------------|
+| **nvim**         | Each section shown in Neovim inside a tmux popup          |
+| **vim**          | Each section shown in Vim inside a tmux popup             |
+| **nano**         | Each section shown in nano (view) + small action menu     |
+| **Conversational** | Sections rendered in chat; navigate via selection menu  |
+
+Outside tmux, conversational mode is used automatically.
+
+#### Editor popup controls (nvim / vim)
+
+| Key        | Action                              |
+|------------|-------------------------------------|
+| `Enter`, `n` | Next section                      |
+| `p`        | Previous section                    |
+| `d`        | Done — skip to wrap-up              |
+| `q`        | Ask a question about this section   |
+| `e`        | Request a change to this section    |
+
+For nano, the same actions are presented as a numbered menu after closing
+the view popup.
+
+#### Conversational mode navigation
+
+After each section a selection menu offers:
+
+1. **Next** — advance
+2. **Done** — finish and go to wrap-up
+3. **Jump to section…** — enter a section number to jump
+4. **Ask / request a change** — type a question or describe an edit
+
+#### Wrap-up
+
+After the last section (or when you press `d`/Done), the command:
+
+- Lists every edit made during the session
+- Offers to open the plan in nvim, vim, or nano for any final edits
 
 ### `/re:diffview`
 
