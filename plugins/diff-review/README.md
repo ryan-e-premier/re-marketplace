@@ -173,6 +173,3 @@ MIT
 
 eldridger
 
-## Repository
-
-https://github.com/eldridger/claude-diff-review
